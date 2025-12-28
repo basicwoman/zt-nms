@@ -1,0 +1,229 @@
+{
+  "description": "Тестовые данные аттестации устройств для системы ZT-NMS",
+  "version": "1.0.0",
+  "generated_at": "2025-01-15T00:00:00Z",
+  "reference_measurements": [
+    {
+      "device_id": "660e8400-e29b-41d4-a716-446655440001",
+      "hostname": "core-rtr-01",
+      "vendor": "Cisco",
+      "model": "ISR 4331",
+      "os_version": "15.7(3)M",
+      "measurements": {
+        "firmware_hash": "sha256:abc123def456789012345678901234567890abcdef1234567890abcdef12345678",
+        "os_hash": "sha256:def456789012345678901234567890abcdef1234567890abcdef1234567890abc",
+        "bootloader_hash": "sha256:789012345678901234567890abcdef1234567890abcdef1234567890abcdef12",
+        "config_hash": "sha256:012345678901234567890abcdef1234567890abcdef1234567890abcdef123456",
+        "agent_hash": null
+      },
+      "expected_processes": ["sshd", "snmpd", "ospfd", "bgpd"],
+      "expected_ports": [22, 161, 179, 830],
+      "last_updated": "2025-01-01T00:00:00Z",
+      "updated_by": "550e8400-e29b-41d4-a716-446655440001"
+    },
+    {
+      "device_id": "660e8400-e29b-41d4-a716-446655440002",
+      "hostname": "dist-sw-01",
+      "vendor": "Cisco",
+      "model": "Catalyst 3750",
+      "os_version": "15.2(4)E",
+      "measurements": {
+        "firmware_hash": "sha256:fedcba0987654321fedcba0987654321fedcba0987654321fedcba0987654321",
+        "os_hash": "sha256:0987654321fedcba0987654321fedcba0987654321fedcba0987654321fedcba",
+        "bootloader_hash": "sha256:1234567890fedcba1234567890fedcba1234567890fedcba1234567890fedcba",
+        "config_hash": "sha256:def456abc789012345678901234567890abcdef1234567890abcdef123456789",
+        "agent_hash": null
+      },
+      "expected_processes": ["sshd", "snmpd", "stpd"],
+      "expected_ports": [22, 161],
+      "last_updated": "2025-01-01T00:00:00Z",
+      "updated_by": "550e8400-e29b-41d4-a716-446655440001"
+    },
+    {
+      "device_id": "660e8400-e29b-41d4-a716-446655440003",
+      "hostname": "dist-sw-02",
+      "vendor": "Cisco",
+      "model": "Catalyst 9300",
+      "os_version": "17.2.1",
+      "measurements": {
+        "firmware_hash": "sha256:abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890",
+        "os_hash": "sha256:1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
+        "bootloader_hash": "sha256:567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234",
+        "config_hash": "sha256:789012abc345678901234567890abcdef123456789012345678901234567890",
+        "agent_hash": "sha256:agent_hash_dist_sw_02_1234567890abcdef1234567890abcdef123456"
+      },
+      "expected_processes": ["sshd", "snmpd", "netconf", "restconf", "zt-nms-agent"],
+      "expected_ports": [22, 161, 830, 443],
+      "last_updated": "2025-01-01T00:00:00Z",
+      "updated_by": "550e8400-e29b-41d4-a716-446655440001"
+    },
+    {
+      "device_id": "660e8400-e29b-41d4-a716-446655440005",
+      "hostname": "fw-edge-01",
+      "vendor": "Netgate",
+      "model": "pfSense",
+      "os_version": "2.5.2-RELEASE",
+      "measurements": {
+        "firmware_hash": "sha256:pfsense_firmware_hash_2_5_2_release_abc123def456789012345678901234",
+        "os_hash": "sha256:freebsd_12_2_os_hash_def456789012345678901234567890abcdef123456",
+        "bootloader_hash": "sha256:pfsense_bootloader_hash_789012345678901234567890abcdef1234567890",
+        "config_hash": "sha256:567890abcdef123456789012345678901234abc1234567890abcdef12345678",
+        "agent_hash": null
+      },
+      "expected_processes": ["php-fpm", "nginx", "unbound", "suricata", "openvpn", "dpinger"],
+      "expected_ports": [22, 443, 1194],
+      "last_updated": "2025-01-01T00:00:00Z",
+      "updated_by": "550e8400-e29b-41d4-a716-446655440001"
+    },
+    {
+      "device_id": "660e8400-e29b-41d4-a716-446655440006",
+      "hostname": "ids-01",
+      "vendor": "OISF",
+      "model": "Suricata IDS",
+      "os_version": "22.04 LTS",
+      "measurements": {
+        "firmware_hash": null,
+        "os_hash": "sha256:ubuntu_22_04_lts_os_hash_abc123def456789012345678901234567890ab",
+        "bootloader_hash": "sha256:grub_bootloader_hash_def456789012345678901234567890abcdef1234",
+        "config_hash": "sha256:890abcdef123456789012345678901234567abc1234567890abcdef1234567890",
+        "agent_hash": "sha256:agent_hash_ids_01_fedcba0987654321fedcba0987654321fedcba09876"
+      },
+      "expected_processes": ["suricata", "sshd", "zt-nms-agent", "filebeat"],
+      "expected_ports": [22],
+      "last_updated": "2025-01-01T00:00:00Z",
+      "updated_by": "550e8400-e29b-41d4-a716-446655440001"
+    }
+  ],
+  "attestation_reports": [
+    {
+      "id": "bb0e8400-e29b-41d4-a716-446655440001",
+      "device_id": "660e8400-e29b-41d4-a716-446655440001",
+      "nonce": "randomNonce_001_abc123def456789012345678901234567890",
+      "timestamp": "2025-01-15T09:00:00Z",
+      "measurements": {
+        "firmware_hash": "sha256:abc123def456789012345678901234567890abcdef1234567890abcdef12345678",
+        "os_hash": "sha256:def456789012345678901234567890abcdef1234567890abcdef1234567890abc",
+        "config_hash": "sha256:012345678901234567890abcdef1234567890abcdef1234567890abcdef123456",
+        "running_processes": ["sshd", "snmpd", "ospfd", "bgpd"],
+        "open_ports": [22, 161, 179, 830]
+      },
+      "signature": "MEUCIQDattestation_report_sig_001_core_rtr_01_verified...",
+      "verification_result": "verified",
+      "verification_details": {
+        "firmware_match": true,
+        "os_match": true,
+        "config_match": true,
+        "processes_match": true,
+        "ports_match": true
+      },
+      "trust_score": 100,
+      "previous_trust_status": "verified",
+      "new_trust_status": "verified"
+    },
+    {
+      "id": "bb0e8400-e29b-41d4-a716-446655440002",
+      "device_id": "660e8400-e29b-41d4-a716-446655440002",
+      "nonce": "randomNonce_002_def456789012345678901234567890abcdef12",
+      "timestamp": "2025-01-14T00:00:00Z",
+      "measurements": {
+        "firmware_hash": "sha256:MODIFIED_firmware_hash_indicating_tampering_or_update_needed",
+        "os_hash": "sha256:0987654321fedcba0987654321fedcba0987654321fedcba0987654321fedcba",
+        "config_hash": "sha256:def456abc789012345678901234567890abcdef1234567890abcdef123456789",
+        "running_processes": ["sshd", "snmpd", "stpd", "unknown_process"],
+        "open_ports": [22, 161, 4444]
+      },
+      "signature": "MEUCIQDattestation_report_sig_002_dist_sw_01_untrusted...",
+      "verification_result": "untrusted",
+      "verification_details": {
+        "firmware_match": false,
+        "os_match": true,
+        "config_match": true,
+        "processes_match": false,
+        "ports_match": false,
+        "anomalies": [
+          "Firmware hash mismatch - possible tampering or unauthorized update",
+          "Unknown process detected: unknown_process",
+          "Unexpected open port: 4444"
+        ]
+      },
+      "trust_score": 25,
+      "previous_trust_status": "verified",
+      "new_trust_status": "untrusted",
+      "alert_generated": true,
+      "alert_id": "ALT-2025-0001"
+    },
+    {
+      "id": "bb0e8400-e29b-41d4-a716-446655440003",
+      "device_id": "660e8400-e29b-41d4-a716-446655440005",
+      "nonce": "randomNonce_003_789012345678901234567890abcdef123456",
+      "timestamp": "2025-01-15T09:00:00Z",
+      "measurements": {
+        "firmware_hash": "sha256:pfsense_firmware_hash_2_5_2_release_abc123def456789012345678901234",
+        "os_hash": "sha256:freebsd_12_2_os_hash_def456789012345678901234567890abcdef123456",
+        "config_hash": "sha256:567890abcdef123456789012345678901234abc1234567890abcdef12345678",
+        "running_processes": ["php-fpm", "nginx", "unbound", "suricata", "openvpn", "dpinger"],
+        "open_ports": [22, 443, 1194]
+      },
+      "signature": "MEUCIQDattestation_report_sig_003_fw_edge_01_verified...",
+      "verification_result": "verified",
+      "verification_details": {
+        "firmware_match": true,
+        "os_match": true,
+        "config_match": true,
+        "processes_match": true,
+        "ports_match": true
+      },
+      "trust_score": 100,
+      "previous_trust_status": "verified",
+      "new_trust_status": "verified"
+    },
+    {
+      "id": "bb0e8400-e29b-41d4-a716-446655440004",
+      "device_id": "660e8400-e29b-41d4-a716-446655440008",
+      "nonce": "randomNonce_004_012345678901234567890abcdef1234567890",
+      "timestamp": "2025-01-14T00:00:00Z",
+      "measurements": {
+        "firmware_hash": "sha256:invalid_hash_detected_0000000000000000000000000000000000000000",
+        "os_hash": "sha256:mismatched_os_hash_11111111111111111111111111111111111111",
+        "config_hash": "sha256:mismatch_hash_0000000000000000000000000000000000000000000",
+        "running_processes": ["sshd", "malware_process", "backdoor"],
+        "open_ports": [22, 830, 31337, 4444]
+      },
+      "signature": "MEUCIQDattestation_report_sig_004_untrusted_device...",
+      "verification_result": "untrusted",
+      "verification_details": {
+        "firmware_match": false,
+        "os_match": false,
+        "config_match": false,
+        "processes_match": false,
+        "ports_match": false,
+        "anomalies": [
+          "Firmware hash mismatch - critical",
+          "OS hash mismatch - critical",
+          "Config hash mismatch",
+          "Suspicious processes detected: malware_process, backdoor",
+          "Suspicious ports open: 31337, 4444"
+        ]
+      },
+      "trust_score": 0,
+      "previous_trust_status": "unknown",
+      "new_trust_status": "quarantined",
+      "alert_generated": true,
+      "alert_id": "ALT-2025-0002",
+      "quarantine_actions": [
+        "Device isolated from network",
+        "Management access revoked",
+        "Security team notified",
+        "Incident ticket created: INC-2025-0001"
+      ]
+    }
+  ],
+  "attestation_schedule": {
+    "default_interval_hours": 24,
+    "critical_devices_interval_hours": 6,
+    "on_config_change": true,
+    "on_boot": true,
+    "random_interval_enabled": true,
+    "random_interval_max_hours": 4
+  }
+}

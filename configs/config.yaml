@@ -1,0 +1,210 @@
+# ZT-NMS Configuration
+# Zero Trust Network Management System
+
+environment: production
+
+server:
+  host: "0.0.0.0"
+  port: 8080
+  read_timeout: 30s
+  write_timeout: 30s
+  shutdown_timeout: 30s
+  
+  tls:
+    enabled: true
+    port: 8443
+    cert: "/etc/zt-nms/tls/server.crt"
+    key: "/etc/zt-nms/tls/server.key"
+    ca: "/etc/zt-nms/tls/ca.crt"
+    client_auth: "require" # none, request, require
+    min_version: "1.3"
+
+cors:
+  enabled: true
+  allowed_origins:
+    - "http://localhost:3001"
+    - "http://localhost:3000"
+    - "http://127.0.0.1:3001"
+    - "http://127.0.0.1:3000"
+    - "https://console.zt-nms.example.com"
+  methods:
+    - "GET"
+    - "POST"
+    - "PUT"
+    - "DELETE"
+  headers:
+    - "Authorization"
+    - "Content-Type"
+    - "X-Request-ID"
+
+database:
+  host: "postgres.zt-nms.svc.cluster.local"
+  port: 5432
+  name: "ztnms"
+  user: "ztnms"
+  password: "${ZTNMS_DB_PASSWORD}"
+  ssl_mode: "require"
+  max_connections: 50
+  min_connections: 10
+  max_conn_lifetime: 1h
+  max_conn_idle_time: 30m
+
+redis:
+  host: "redis.zt-nms.svc.cluster.local"
+  port: 6379
+  password: "${ZTNMS_REDIS_PASSWORD}"
+  db: 0
+  pool_size: 100
+  tls_enabled: true
+
+etcd:
+  endpoints:
+    - "etcd-0.etcd.zt-nms.svc.cluster.local:2379"
+    - "etcd-1.etcd.zt-nms.svc.cluster.local:2379"
+    - "etcd-2.etcd.zt-nms.svc.cluster.local:2379"
+  dial_timeout: 5s
+  tls:
+    enabled: true
+    cert: "/etc/zt-nms/etcd/client.crt"
+    key: "/etc/zt-nms/etcd/client.key"
+    ca: "/etc/zt-nms/etcd/ca.crt"
+
+nats:
+  url: "nats://nats.zt-nms.svc.cluster.local:4222"
+  cluster_id: "zt-nms"
+  client_id: "api-gateway"
+  tls:
+    enabled: true
+    cert: "/etc/zt-nms/nats/client.crt"
+    key: "/etc/zt-nms/nats/client.key"
+    ca: "/etc/zt-nms/nats/ca.crt"
+
+identity:
+  ca:
+    cert: "/etc/zt-nms/ca/ca.crt"
+    key: "/etc/zt-nms/ca/ca.key"
+  certificate_validity: 8760h # 1 year
+  mfa:
+    enabled: true
+    providers:
+      - totp
+      - webauthn
+  session:
+    timeout: 8h
+    max_concurrent: 5
+
+capability:
+  issuer_id: "zt-nms-primary"
+  signing_key: "/etc/zt-nms/keys/capability-signing.key"
+  default_ttl: 1h
+  max_ttl: 24h
+  renewal:
+    enabled: true
+    max_renewals: 3
+  delegation:
+    max_depth: 3
+    require_approval: true
+
+policy:
+  cache:
+    enabled: true
+    ttl: 5m
+    max_size: 10000
+  default_effect: "deny"
+  emergency_access:
+    enabled: true
+    require_justification: true
+    max_duration: 4h
+    notify:
+      - "security@example.com"
+
+config:
+  validation:
+    syntax: true
+    policy: true
+    security: true
+    simulation: true
+  deployment:
+    require_approval: true
+    approval_quorum: 2
+    verification:
+      enabled: true
+      timeout: 5m
+      rollback_on_failure: true
+  chain:
+    verify_interval: 1h
+
+proxy:
+  connection_pool_size: 100
+  connection_timeout: 30s
+  command_timeout: 60s
+  max_output_size: 10485760 # 10MB
+  rate_limit:
+    enabled: true
+    requests_per_minute: 100
+  session_recording:
+    enabled: true
+    storage: "s3://zt-nms-recordings/"
+
+attestation:
+  enabled: true
+  interval: 1h
+  on_connect: true
+  on_config_change: true
+  require_tpm: false
+  failure_action: "quarantine"
+  verification:
+    firmware: true
+    os: true
+    config: true
+    processes: false
+
+audit:
+  enabled: true
+  chain_verification: true
+  retention:
+    default_days: 365
+    security_events_days: 2555 # 7 years
+  export:
+    enabled: true
+    format: "json"
+    encryption: true
+  storage:
+    type: "postgresql"
+    archive:
+      enabled: true
+      after_days: 180
+      destination: "s3://zt-nms-audit-archive/"
+
+metrics:
+  enabled: true
+  port: 9090
+  path: "/metrics"
+
+tracing:
+  enabled: true
+  service_name: "zt-nms-api-gateway"
+  endpoint: "http://jaeger.monitoring.svc.cluster.local:14268/api/traces"
+  sample_rate: 0.1
+
+logging:
+  level: "info"
+  format: "json"
+  output: "stdout"
+  fields:
+    service: "zt-nms-api-gateway"
+    version: "1.0.0"
+
+health:
+  liveness:
+    path: "/health/live"
+    interval: 10s
+  readiness:
+    path: "/health/ready"
+    interval: 5s
+
+features:
+  web_ui: true
+  graphql_api: false
+  grpc_api: true
+  rest_api: true

@@ -1,0 +1,54 @@
+apiVersion: v2
+name: zt-nms
+description: Zero Trust Network Management System - A secure network management platform built on Zero Trust principles
+
+type: application
+version: 1.0.0
+appVersion: "1.0.0"
+
+keywords:
+  - network-management
+  - zero-trust
+  - security
+  - nms
+  - infrastructure
+
+home: https://github.com/zt-nms/zt-nms
+icon: https://raw.githubusercontent.com/zt-nms/zt-nms/main/docs/images/logo.png
+sources:
+  - https://github.com/zt-nms/zt-nms
+
+maintainers:
+  - name: ZT-NMS Team
+    email: team@zt-nms.io
+    url: https://zt-nms.io
+
+annotations:
+  artifacthub.io/category: security
+  artifacthub.io/license: MIT
+  artifacthub.io/links: |
+    - name: Documentation
+      url: https://docs.zt-nms.io
+    - name: Support
+      url: https://github.com/zt-nms/zt-nms/issues
+
+dependencies:
+  - name: postgresql
+    version: "13.2.24"
+    repository: "https://charts.bitnami.com/bitnami"
+    condition: postgresql.enabled
+    
+  - name: redis
+    version: "18.4.0"
+    repository: "https://charts.bitnami.com/bitnami"
+    condition: redis.enabled
+    
+  - name: nats
+    version: "1.1.5"
+    repository: "https://nats-io.github.io/k8s/helm/charts/"
+    condition: nats.enabled
+    
+  - name: etcd
+    version: "9.7.5"
+    repository: "https://charts.bitnami.com/bitnami"
+    condition: etcd.enabled

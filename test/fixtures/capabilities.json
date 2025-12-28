@@ -1,0 +1,301 @@
+{
+  "description": "Тестовые capability-токены для системы ZT-NMS",
+  "version": "1.0.0",
+  "generated_at": "2025-01-15T00:00:00Z",
+  "capabilities": [
+    {
+      "id": "aa0e8400-e29b-41d4-a716-446655440001",
+      "subject_id": "550e8400-e29b-41d4-a716-446655440001",
+      "subject_type": "operator",
+      "resources": [
+        {
+          "type": "device",
+          "id": "660e8400-e29b-41d4-a716-446655440001",
+          "pattern": null
+        }
+      ],
+      "permissions": ["read", "write", "deploy", "backup"],
+      "constraints": {
+        "not_before": "2025-01-15T00:00:00Z",
+        "not_after": "2025-01-15T08:00:00Z",
+        "source_ips": ["192.168.1.0/24", "10.0.0.0/8"],
+        "max_uses": null,
+        "use_count": 0,
+        "require_mfa": false
+      },
+      "delegatable": false,
+      "parent_capability": null,
+      "policy_ref": "880e8400-e29b-41d4-a716-446655440001",
+      "issued_at": "2025-01-15T00:00:00Z",
+      "issuer_id": "system",
+      "issuer_signature": "MEUCIQDcapability_issuer_sig_001_admin_full_access_token...",
+      "revoked": false,
+      "revoked_at": null,
+      "revocation_reason": null
+    },
+    {
+      "id": "aa0e8400-e29b-41d4-a716-446655440002",
+      "subject_id": "550e8400-e29b-41d4-a716-446655440002",
+      "subject_type": "operator",
+      "resources": [
+        {
+          "type": "device",
+          "id": null,
+          "pattern": "*"
+        },
+        {
+          "type": "config",
+          "id": null,
+          "pattern": "*"
+        }
+      ],
+      "permissions": ["read", "list", "view"],
+      "constraints": {
+        "not_before": "2025-01-15T00:00:00Z",
+        "not_after": "2025-01-15T04:00:00Z",
+        "source_ips": ["192.168.1.0/24"],
+        "max_uses": 1000,
+        "use_count": 45,
+        "require_mfa": false
+      },
+      "delegatable": false,
+      "parent_capability": null,
+      "policy_ref": "880e8400-e29b-41d4-a716-446655440002",
+      "issued_at": "2025-01-15T00:00:00Z",
+      "issuer_id": "system",
+      "issuer_signature": "MEUCIQDcapability_issuer_sig_002_viewer_readonly_token...",
+      "revoked": false,
+      "revoked_at": null,
+      "revocation_reason": null
+    },
+    {
+      "id": "aa0e8400-e29b-41d4-a716-446655440003",
+      "subject_id": "550e8400-e29b-41d4-a716-446655440003",
+      "subject_type": "operator",
+      "resources": [
+        {
+          "type": "device",
+          "id": "660e8400-e29b-41d4-a716-446655440002",
+          "pattern": null
+        },
+        {
+          "type": "device",
+          "id": "660e8400-e29b-41d4-a716-446655440003",
+          "pattern": null
+        },
+        {
+          "type": "device",
+          "id": "660e8400-e29b-41d4-a716-446655440004",
+          "pattern": null
+        }
+      ],
+      "permissions": ["read", "write"],
+      "constraints": {
+        "not_before": "2025-01-15T00:00:00Z",
+        "not_after": "2025-01-15T02:00:00Z",
+        "source_ips": ["192.168.1.50/32"],
+        "max_uses": 50,
+        "use_count": 12,
+        "require_mfa": true
+      },
+      "delegatable": false,
+      "parent_capability": null,
+      "policy_ref": "880e8400-e29b-41d4-a716-446655440003",
+      "issued_at": "2025-01-15T00:00:00Z",
+      "issuer_id": "system",
+      "issuer_signature": "MEUCIQDcapability_issuer_sig_003_engineer_mfa_required...",
+      "revoked": false,
+      "revoked_at": null,
+      "revocation_reason": null
+    },
+    {
+      "id": "aa0e8400-e29b-41d4-a716-446655440004",
+      "subject_id": "550e8400-e29b-41d4-a716-446655440001",
+      "subject_type": "operator",
+      "resources": [
+        {
+          "type": "device",
+          "id": "660e8400-e29b-41d4-a716-446655440005",
+          "pattern": null
+        }
+      ],
+      "permissions": ["read", "write", "deploy"],
+      "constraints": {
+        "not_before": "2025-01-15T10:00:00Z",
+        "not_after": "2025-01-15T11:00:00Z",
+        "source_ips": null,
+        "max_uses": 10,
+        "use_count": 0,
+        "require_mfa": true,
+        "emergency_id": "EMG-2025-001",
+        "emergency_reason": "Critical firewall issue - immediate fix required"
+      },
+      "delegatable": false,
+      "parent_capability": null,
+      "policy_ref": "880e8400-e29b-41d4-a716-446655440004",
+      "issued_at": "2025-01-15T10:00:00Z",
+      "issuer_id": "system",
+      "issuer_signature": "MEUCIQDcapability_issuer_sig_004_emergency_access_token...",
+      "revoked": false,
+      "revoked_at": null,
+      "revocation_reason": null,
+      "audit_level": "enhanced"
+    },
+    {
+      "id": "aa0e8400-e29b-41d4-a716-446655440005",
+      "subject_id": "550e8400-e29b-41d4-a716-446655440004",
+      "subject_type": "service",
+      "resources": [
+        {
+          "type": "config",
+          "id": null,
+          "pattern": "*"
+        },
+        {
+          "type": "backup",
+          "id": null,
+          "pattern": "*"
+        }
+      ],
+      "permissions": ["read", "backup"],
+      "constraints": {
+        "not_before": "2025-01-15T00:00:00Z",
+        "not_after": "2025-01-16T00:00:00Z",
+        "source_ips": ["192.168.1.100/32"],
+        "max_uses": null,
+        "use_count": 250,
+        "require_mfa": false
+      },
+      "delegatable": false,
+      "parent_capability": null,
+      "policy_ref": "880e8400-e29b-41d4-a716-446655440006",
+      "issued_at": "2025-01-15T00:00:00Z",
+      "issuer_id": "system",
+      "issuer_signature": "MEUCIQDcapability_issuer_sig_005_service_backup_token...",
+      "revoked": false,
+      "revoked_at": null,
+      "revocation_reason": null
+    },
+    {
+      "id": "aa0e8400-e29b-41d4-a716-446655440006",
+      "subject_id": "550e8400-e29b-41d4-a716-446655440003",
+      "subject_type": "operator",
+      "resources": [
+        {
+          "type": "device",
+          "id": "660e8400-e29b-41d4-a716-446655440001",
+          "pattern": null
+        }
+      ],
+      "permissions": ["read", "write", "deploy"],
+      "constraints": {
+        "not_before": "2025-01-10T00:00:00Z",
+        "not_after": "2025-01-10T08:00:00Z",
+        "source_ips": ["192.168.1.0/24"],
+        "max_uses": 20,
+        "use_count": 20,
+        "require_mfa": true
+      },
+      "delegatable": false,
+      "parent_capability": null,
+      "policy_ref": "880e8400-e29b-41d4-a716-446655440001",
+      "issued_at": "2025-01-10T00:00:00Z",
+      "issuer_id": "system",
+      "issuer_signature": "MEUCIQDcapability_issuer_sig_006_expired_token...",
+      "revoked": false,
+      "revoked_at": null,
+      "revocation_reason": null,
+      "expired": true
+    },
+    {
+      "id": "aa0e8400-e29b-41d4-a716-446655440007",
+      "subject_id": "550e8400-e29b-41d4-a716-446655440005",
+      "subject_type": "operator",
+      "resources": [
+        {
+          "type": "device",
+          "id": null,
+          "pattern": "*"
+        }
+      ],
+      "permissions": ["read"],
+      "constraints": {
+        "not_before": "2025-01-01T00:00:00Z",
+        "not_after": "2025-12-31T23:59:59Z",
+        "source_ips": null,
+        "max_uses": null,
+        "use_count": 150,
+        "require_mfa": false
+      },
+      "delegatable": false,
+      "parent_capability": null,
+      "policy_ref": "880e8400-e29b-41d4-a716-446655440002",
+      "issued_at": "2025-01-01T00:00:00Z",
+      "issuer_id": "system",
+      "issuer_signature": "MEUCIQDcapability_issuer_sig_007_revoked_token...",
+      "revoked": true,
+      "revoked_at": "2025-01-10T00:00:00Z",
+      "revocation_reason": "User identity suspended"
+    },
+    {
+      "id": "aa0e8400-e29b-41d4-a716-446655440008",
+      "subject_id": "550e8400-e29b-41d4-a716-446655440001",
+      "subject_type": "operator",
+      "resources": [
+        {
+          "type": "device",
+          "id": "660e8400-e29b-41d4-a716-446655440002",
+          "pattern": null
+        }
+      ],
+      "permissions": ["read", "write", "deploy"],
+      "constraints": {
+        "not_before": "2025-01-15T00:00:00Z",
+        "not_after": "2025-01-15T08:00:00Z",
+        "source_ips": ["192.168.1.0/24"],
+        "max_uses": null,
+        "use_count": 0,
+        "require_mfa": false
+      },
+      "delegatable": true,
+      "parent_capability": null,
+      "policy_ref": "880e8400-e29b-41d4-a716-446655440001",
+      "issued_at": "2025-01-15T00:00:00Z",
+      "issuer_id": "system",
+      "issuer_signature": "MEUCIQDcapability_issuer_sig_008_delegatable_token...",
+      "revoked": false,
+      "revoked_at": null,
+      "revocation_reason": null
+    },
+    {
+      "id": "aa0e8400-e29b-41d4-a716-446655440009",
+      "subject_id": "550e8400-e29b-41d4-a716-446655440003",
+      "subject_type": "operator",
+      "resources": [
+        {
+          "type": "device",
+          "id": "660e8400-e29b-41d4-a716-446655440002",
+          "pattern": null
+        }
+      ],
+      "permissions": ["read", "write"],
+      "constraints": {
+        "not_before": "2025-01-15T00:00:00Z",
+        "not_after": "2025-01-15T04:00:00Z",
+        "source_ips": ["192.168.1.0/24"],
+        "max_uses": 10,
+        "use_count": 0,
+        "require_mfa": false
+      },
+      "delegatable": false,
+      "parent_capability": "aa0e8400-e29b-41d4-a716-446655440008",
+      "policy_ref": "880e8400-e29b-41d4-a716-446655440001",
+      "issued_at": "2025-01-15T01:00:00Z",
+      "issuer_id": "550e8400-e29b-41d4-a716-446655440001",
+      "issuer_signature": "MEUCIQDcapability_issuer_sig_009_delegated_token...",
+      "revoked": false,
+      "revoked_at": null,
+      "revocation_reason": null
+    }
+  ]
+}

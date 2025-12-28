@@ -1,0 +1,1041 @@
+syntax = "proto3";
+
+package ztnms.v1;
+
+option go_package = "github.com/zt-nms/zt-nms/api/proto/v1";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+
+// =============================================================================
+// Identity Service
+// =============================================================================
+
+service IdentityService {
+  // Create a new identity
+  rpc CreateIdentity(CreateIdentityRequest) returns (Identity);
+  // Get identity by ID
+  rpc GetIdentity(GetIdentityRequest) returns (Identity);
+  // Get identity by public key
+  rpc GetIdentityByPublicKey(GetIdentityByPublicKeyRequest) returns (Identity);
+  // List identities
+  rpc ListIdentities(ListIdentitiesRequest) returns (ListIdentitiesResponse);
+  // Update identity
+  rpc UpdateIdentity(UpdateIdentityRequest) returns (Identity);
+  // Suspend identity
+  rpc SuspendIdentity(SuspendIdentityRequest) returns (Identity);
+  // Activate identity
+  rpc ActivateIdentity(ActivateIdentityRequest) returns (Identity);
+  // Revoke identity
+  rpc RevokeIdentity(RevokeIdentityRequest) returns (google.protobuf.Empty);
+  // Authenticate
+  rpc Authenticate(AuthenticateRequest) returns (AuthenticateResponse);
+  // Get challenge for authentication
+  rpc GetChallenge(GetChallengeRequest) returns (GetChallengeResponse);
+}
+
+message Identity {
+  string id = 1;
+  IdentityType type = 2;
+  map<string, string> attributes = 3;
+  bytes public_key = 4;
+  bytes certificate = 5;
+  IdentityStatus status = 6;
+  google.protobuf.Timestamp created_at = 7;
+  google.protobuf.Timestamp updated_at = 8;
+  string created_by = 9;
+}
+
+enum IdentityType {
+  IDENTITY_TYPE_UNSPECIFIED = 0;
+  IDENTITY_TYPE_OPERATOR = 1;
+  IDENTITY_TYPE_DEVICE = 2;
+  IDENTITY_TYPE_SERVICE = 3;
+}
+
+enum IdentityStatus {
+  IDENTITY_STATUS_UNSPECIFIED = 0;
+  IDENTITY_STATUS_ACTIVE = 1;
+  IDENTITY_STATUS_SUSPENDED = 2;
+  IDENTITY_STATUS_REVOKED = 3;
+}
+
+message CreateIdentityRequest {
+  IdentityType type = 1;
+  map<string, string> attributes = 2;
+  bytes public_key = 3;
+}
+
+message GetIdentityRequest {
+  string id = 1;
+}
+
+message GetIdentityByPublicKeyRequest {
+  bytes public_key = 1;
+}
+
+message ListIdentitiesRequest {
+  IdentityType type = 1;
+  IdentityStatus status = 2;
+  repeated string groups = 3;
+  string search = 4;
+  int32 limit = 5;
+  int32 offset = 6;
+}
+
+message ListIdentitiesResponse {
+  repeated Identity identities = 1;
+  int32 total = 2;
+}
+
+message UpdateIdentityRequest {
+  string id = 1;
+  map<string, string> attributes = 2;
+}
+
+message SuspendIdentityRequest {
+  string id = 1;
+  string reason = 2;
+}
+
+message ActivateIdentityRequest {
+  string id = 1;
+}
+
+message RevokeIdentityRequest {
+  string id = 1;
+  string reason = 2;
+}
+
+message AuthenticateRequest {
+  bytes public_key = 1;
+  bytes challenge = 2;
+  bytes signature = 3;
+}
+
+message AuthenticateResponse {
+  Identity identity = 1;
+  string session_token = 2;
+  google.protobuf.Timestamp expires_at = 3;
+}
+
+message GetChallengeRequest {
+  bytes public_key = 1;
+}
+
+message GetChallengeResponse {
+  bytes challenge = 1;
+  google.protobuf.Timestamp expires_at = 2;
+}
+
+// =============================================================================
+// Capability Service
+// =============================================================================
+
+service CapabilityService {
+  // Request a capability token
+  rpc RequestCapability(RequestCapabilityRequest) returns (CapabilityToken);
+  // Get capability by ID
+  rpc GetCapability(GetCapabilityRequest) returns (CapabilityToken);
+  // Verify capability
+  rpc VerifyCapability(VerifyCapabilityRequest) returns (VerifyCapabilityResponse);
+  // Revoke capability
+  rpc RevokeCapability(RevokeCapabilityRequest) returns (google.protobuf.Empty);
+  // List capabilities for subject
+  rpc ListCapabilities(ListCapabilitiesRequest) returns (ListCapabilitiesResponse);
+  // Add approval to capability
+  rpc ApproveCapability(ApproveCapabilityRequest) returns (CapabilityToken);
+  // Delegate capability
+  rpc DelegateCapability(DelegateCapabilityRequest) returns (CapabilityToken);
+}
+
+message CapabilityToken {
+  int32 version = 1;
+  string token_id = 2;
+  string issuer = 3;
+  google.protobuf.Timestamp issued_at = 4;
+  string subject_id = 5;
+  bytes subject_hash = 6;
+  repeated Grant grants = 7;
+  Validity validity = 8;
+  ContextRequirements context_requirements = 9;
+  DelegationRules delegation = 10;
+  string parent_token_id = 11;
+  int32 delegation_depth = 12;
+  repeated Approval approvals = 13;
+  bytes issuer_signature = 14;
+}
+
+message Grant {
+  ResourceSelector resource = 1;
+  repeated string actions = 2;
+  GrantConstraints constraints = 3;
+  bool requires_approval = 4;
+  int32 approval_quorum = 5;
+}
+
+message ResourceSelector {
+  string type = 1;
+  string id = 2;
+  string pattern = 3;
+  map<string, string> attributes = 4;
+  repeated string tags = 5;
+}
+
+message GrantConstraints {
+  repeated string allowed_commands = 1;
+  repeated string denied_commands = 2;
+  repeated string allowed_paths = 3;
+  int32 max_changes = 4;
+  bool require_change_ticket = 5;
+}
+
+message Validity {
+  google.protobuf.Timestamp not_before = 1;
+  google.protobuf.Timestamp not_after = 2;
+  int32 max_uses = 3;
+}
+
+message ContextRequirements {
+  bool mfa_required = 1;
+  repeated string source_networks = 2;
+  repeated string allowed_hours = 3;
+  string device_posture = 4;
+}
+
+message DelegationRules {
+  bool allowed = 1;
+  int32 max_depth = 2;
+  repeated string delegatable_actions = 3;
+  bool require_approval = 4;
+}
+
+message Approval {
+  string approver_id = 1;
+  google.protobuf.Timestamp approval_time = 2;
+  string scope = 3;
+  bytes signature = 4;
+}
+
+message RequestCapabilityRequest {
+  string subject_id = 1;
+  repeated Grant grants = 2;
+  int64 validity_duration_seconds = 3;
+  ContextRequirements context_requirements = 4;
+  DelegationRules delegation = 5;
+  string justification = 6;
+}
+
+message GetCapabilityRequest {
+  string id = 1;
+}
+
+message VerifyCapabilityRequest {
+  bytes token = 1;
+  string action = 2;
+  string resource_type = 3;
+  string resource_id = 4;
+}
+
+message VerifyCapabilityResponse {
+  bool valid = 1;
+  string reason = 2;
+  repeated string obligations = 3;
+}
+
+message RevokeCapabilityRequest {
+  string id = 1;
+  string reason = 2;
+}
+
+message ListCapabilitiesRequest {
+  string subject_id = 1;
+  bool active_only = 2;
+  int32 limit = 3;
+  int32 offset = 4;
+}
+
+message ListCapabilitiesResponse {
+  repeated CapabilityToken capabilities = 1;
+  int32 total = 2;
+}
+
+message ApproveCapabilityRequest {
+  string token_id = 1;
+  string scope = 2;
+  bytes signature = 3;
+}
+
+message DelegateCapabilityRequest {
+  bytes parent_token = 1;
+  string delegatee_id = 2;
+  bytes delegatee_public_key = 3;
+  repeated Grant grants = 4;
+  int64 validity_duration_seconds = 5;
+}
+
+// =============================================================================
+// Policy Service
+// =============================================================================
+
+service PolicyService {
+  // Create policy
+  rpc CreatePolicy(CreatePolicyRequest) returns (Policy);
+  // Get policy
+  rpc GetPolicy(GetPolicyRequest) returns (Policy);
+  // List policies
+  rpc ListPolicies(ListPoliciesRequest) returns (ListPoliciesResponse);
+  // Update policy
+  rpc UpdatePolicy(UpdatePolicyRequest) returns (Policy);
+  // Delete policy
+  rpc DeletePolicy(DeletePolicyRequest) returns (google.protobuf.Empty);
+  // Activate policy
+  rpc ActivatePolicy(ActivatePolicyRequest) returns (Policy);
+  // Evaluate policy
+  rpc EvaluatePolicy(EvaluatePolicyRequest) returns (PolicyDecision);
+}
+
+message Policy {
+  string id = 1;
+  string name = 2;
+  int32 version = 3;
+  string description = 4;
+  PolicyType type = 5;
+  PolicyDefinition definition = 6;
+  PolicyStatus status = 7;
+  google.protobuf.Timestamp effective_from = 8;
+  google.protobuf.Timestamp effective_until = 9;
+  google.protobuf.Timestamp created_at = 10;
+  string created_by = 11;
+}
+
+enum PolicyType {
+  POLICY_TYPE_UNSPECIFIED = 0;
+  POLICY_TYPE_ACCESS = 1;
+  POLICY_TYPE_CONFIG = 2;
+  POLICY_TYPE_DEPLOYMENT = 3;
+  POLICY_TYPE_NETWORK = 4;
+}
+
+enum PolicyStatus {
+  POLICY_STATUS_UNSPECIFIED = 0;
+  POLICY_STATUS_DRAFT = 1;
+  POLICY_STATUS_ACTIVE = 2;
+  POLICY_STATUS_ARCHIVED = 3;
+}
+
+message PolicyDefinition {
+  repeated PolicyRule rules = 1;
+  PolicyDefaults defaults = 2;
+  map<string, string> variables = 3;
+}
+
+message PolicyRule {
+  string name = 1;
+  int32 priority = 2;
+  SubjectMatcher subjects = 3;
+  ResourceMatcher resources = 4;
+  repeated string actions = 5;
+  repeated Condition conditions = 6;
+  PolicyEffect effect = 7;
+  repeated Obligation obligations = 8;
+}
+
+message SubjectMatcher {
+  repeated string identities = 1;
+  repeated string groups = 2;
+  repeated string roles = 3;
+  map<string, string> attributes = 4;
+  bool any = 5;
+}
+
+message ResourceMatcher {
+  repeated string types = 1;
+  repeated string ids = 2;
+  repeated string patterns = 3;
+  map<string, string> attributes = 4;
+  repeated string tags = 5;
+  bool any = 6;
+}
+
+message Condition {
+  string type = 1;
+  string field = 2;
+  string operator = 3;
+  string value = 4;
+  bool negate = 5;
+}
+
+message Obligation {
+  string type = 1;
+  map<string, string> parameters = 2;
+}
+
+message PolicyDefaults {
+  PolicyEffect effect = 1;
+}
+
+enum PolicyEffect {
+  POLICY_EFFECT_UNSPECIFIED = 0;
+  POLICY_EFFECT_ALLOW = 1;
+  POLICY_EFFECT_DENY = 2;
+  POLICY_EFFECT_STEP_UP = 3;
+}
+
+message CreatePolicyRequest {
+  string name = 1;
+  string description = 2;
+  PolicyType type = 3;
+  PolicyDefinition definition = 4;
+}
+
+message GetPolicyRequest {
+  string id = 1;
+}
+
+message ListPoliciesRequest {
+  PolicyType type = 1;
+  PolicyStatus status = 2;
+  int32 limit = 3;
+  int32 offset = 4;
+}
+
+message ListPoliciesResponse {
+  repeated Policy policies = 1;
+  int32 total = 2;
+}
+
+message UpdatePolicyRequest {
+  string id = 1;
+  string description = 2;
+  PolicyDefinition definition = 3;
+}
+
+message DeletePolicyRequest {
+  string id = 1;
+}
+
+message ActivatePolicyRequest {
+  string id = 1;
+}
+
+message EvaluatePolicyRequest {
+  PolicySubject subject = 1;
+  PolicyResource resource = 2;
+  string action = 3;
+  PolicyContext context = 4;
+}
+
+message PolicySubject {
+  string id = 1;
+  string type = 2;
+  repeated string groups = 3;
+  repeated string roles = 4;
+  map<string, string> attributes = 5;
+}
+
+message PolicyResource {
+  string type = 1;
+  string id = 2;
+  map<string, string> attributes = 3;
+  repeated string tags = 4;
+}
+
+message PolicyContext {
+  google.protobuf.Timestamp time = 1;
+  string source_ip = 2;
+  bool mfa_verified = 3;
+  string device_posture = 4;
+  string change_ticket = 5;
+  bool emergency = 6;
+  map<string, string> custom = 7;
+}
+
+message PolicyDecision {
+  PolicyEffect decision = 1;
+  repeated MatchedRule matched_rules = 2;
+  repeated Obligation obligations = 3;
+  map<string, string> constraints = 4;
+  string reason = 5;
+  google.protobuf.Timestamp evaluated_at = 6;
+}
+
+message MatchedRule {
+  string policy_id = 1;
+  string rule_name = 2;
+  PolicyEffect effect = 3;
+}
+
+// =============================================================================
+// Device Service
+// =============================================================================
+
+service DeviceService {
+  // Register device
+  rpc RegisterDevice(RegisterDeviceRequest) returns (Device);
+  // Get device
+  rpc GetDevice(GetDeviceRequest) returns (Device);
+  // List devices
+  rpc ListDevices(ListDevicesRequest) returns (ListDevicesResponse);
+  // Update device
+  rpc UpdateDevice(UpdateDeviceRequest) returns (Device);
+  // Delete device
+  rpc DeleteDevice(DeleteDeviceRequest) returns (google.protobuf.Empty);
+  // Execute operation
+  rpc ExecuteOperation(ExecuteOperationRequest) returns (OperationResult);
+  // Stream operations (bidirectional)
+  rpc StreamOperations(stream OperationRequest) returns (stream OperationResponse);
+  // Get device config
+  rpc GetDeviceConfig(GetDeviceConfigRequest) returns (ConfigBlock);
+  // Heartbeat
+  rpc Heartbeat(HeartbeatRequest) returns (HeartbeatResponse);
+}
+
+message Device {
+  string id = 1;
+  string identity_id = 2;
+  string hostname = 3;
+  string vendor = 4;
+  string model = 5;
+  string serial_number = 6;
+  string os_type = 7;
+  string os_version = 8;
+  string role = 9;
+  string criticality = 10;
+  repeated string tags = 11;
+  string management_ip = 12;
+  int32 management_port = 13;
+  string management_protocol = 14;
+  DeviceStatus status = 15;
+  TrustStatus trust_status = 16;
+  google.protobuf.Timestamp last_seen = 17;
+  google.protobuf.Timestamp last_attestation = 18;
+  int64 current_config_sequence = 19;
+  bytes current_config_hash = 20;
+}
+
+enum DeviceStatus {
+  DEVICE_STATUS_UNSPECIFIED = 0;
+  DEVICE_STATUS_UNKNOWN = 1;
+  DEVICE_STATUS_ONLINE = 2;
+  DEVICE_STATUS_OFFLINE = 3;
+  DEVICE_STATUS_DEGRADED = 4;
+  DEVICE_STATUS_MAINTENANCE = 5;
+}
+
+enum TrustStatus {
+  TRUST_STATUS_UNSPECIFIED = 0;
+  TRUST_STATUS_UNKNOWN = 1;
+  TRUST_STATUS_VERIFIED = 2;
+  TRUST_STATUS_UNTRUSTED = 3;
+  TRUST_STATUS_QUARANTINED = 4;
+}
+
+message RegisterDeviceRequest {
+  string hostname = 1;
+  string vendor = 2;
+  string model = 3;
+  string serial_number = 4;
+  string management_ip = 5;
+  int32 management_port = 6;
+  string management_protocol = 7;
+  bytes public_key = 8;
+  string role = 9;
+  string criticality = 10;
+  repeated string tags = 11;
+}
+
+message GetDeviceRequest {
+  string id = 1;
+}
+
+message ListDevicesRequest {
+  string role = 1;
+  string criticality = 2;
+  DeviceStatus status = 3;
+  TrustStatus trust_status = 4;
+  repeated string tags = 5;
+  string search = 6;
+  int32 limit = 7;
+  int32 offset = 8;
+}
+
+message ListDevicesResponse {
+  repeated Device devices = 1;
+  int32 total = 2;
+}
+
+message UpdateDeviceRequest {
+  string id = 1;
+  string role = 2;
+  string criticality = 3;
+  repeated string tags = 4;
+}
+
+message DeleteDeviceRequest {
+  string id = 1;
+}
+
+message ExecuteOperationRequest {
+  SignedOperation operation = 1;
+}
+
+message SignedOperation {
+  MessageEnvelope envelope = 1;
+  OperationCapability capability = 2;
+  Operation operation = 3;
+  repeated OperationApproval approvals = 4;
+  bytes operator_signature = 5;
+}
+
+message MessageEnvelope {
+  int32 protocol_version = 1;
+  int32 message_type = 2;
+  string message_id = 3;
+  int64 timestamp = 4;
+  bytes nonce = 5;
+}
+
+message OperationCapability {
+  bytes token = 1;
+  bytes usage_proof = 2;
+}
+
+message Operation {
+  string target_device = 1;
+  OperationType operation_type = 2;
+  string resource_path = 3;
+  string action = 4;
+  map<string, string> parameters = 5;
+  bytes expected_state = 6;
+}
+
+enum OperationType {
+  OPERATION_TYPE_UNSPECIFIED = 0;
+  OPERATION_TYPE_READ = 1;
+  OPERATION_TYPE_WRITE = 2;
+  OPERATION_TYPE_EXEC = 3;
+}
+
+message OperationApproval {
+  string approver_id = 1;
+  int64 approval_time = 2;
+  string scope = 3;
+  bytes signature = 4;
+}
+
+message OperationResult {
+  string request_id = 1;
+  OperationResultStatus status = 2;
+  string output = 3;
+  string error = 4;
+  bytes new_config_hash = 5;
+  int64 start_time = 6;
+  int64 end_time = 7;
+  int64 duration_ms = 8;
+  string device_id = 9;
+  bytes device_signature = 10;
+}
+
+enum OperationResultStatus {
+  OPERATION_RESULT_STATUS_UNSPECIFIED = 0;
+  OPERATION_RESULT_STATUS_SUCCESS = 1;
+  OPERATION_RESULT_STATUS_FAILURE = 2;
+  OPERATION_RESULT_STATUS_DENIED = 3;
+  OPERATION_RESULT_STATUS_TIMEOUT = 4;
+}
+
+message OperationRequest {
+  SignedOperation operation = 1;
+}
+
+message OperationResponse {
+  OperationResult result = 1;
+}
+
+message GetDeviceConfigRequest {
+  string device_id = 1;
+  int64 sequence = 2; // 0 for latest
+}
+
+message HeartbeatRequest {
+  string device_id = 1;
+  DeviceStatus status = 2;
+  bytes config_hash = 3;
+  DeviceMetrics metrics = 4;
+}
+
+message DeviceMetrics {
+  float cpu_usage = 1;
+  int64 memory_total = 2;
+  int64 memory_used = 3;
+  map<string, InterfaceStats> interface_stats = 4;
+}
+
+message InterfaceStats {
+  int64 bytes_in = 1;
+  int64 bytes_out = 2;
+  int64 packets_in = 3;
+  int64 packets_out = 4;
+  int64 errors_in = 5;
+  int64 errors_out = 6;
+}
+
+message HeartbeatResponse {
+  bool config_sync_required = 1;
+  bool attestation_required = 2;
+  repeated string pending_operations = 3;
+}
+
+// =============================================================================
+// Configuration Service
+// =============================================================================
+
+service ConfigurationService {
+  // Create config block
+  rpc CreateConfigBlock(CreateConfigBlockRequest) returns (ConfigBlock);
+  // Get config block
+  rpc GetConfigBlock(GetConfigBlockRequest) returns (ConfigBlock);
+  // Get config history
+  rpc GetConfigHistory(GetConfigHistoryRequest) returns (GetConfigHistoryResponse);
+  // Validate config
+  rpc ValidateConfig(ValidateConfigRequest) returns (ValidationResult);
+  // Deploy config
+  rpc DeployConfig(DeployConfigRequest) returns (DeploymentStatus);
+  // Get deployment status
+  rpc GetDeploymentStatus(GetDeploymentStatusRequest) returns (DeploymentStatus);
+  // Rollback config
+  rpc RollbackConfig(RollbackConfigRequest) returns (ConfigBlock);
+  // Verify chain
+  rpc VerifyChain(VerifyChainRequest) returns (VerifyChainResponse);
+}
+
+message ConfigBlock {
+  string id = 1;
+  string device_id = 2;
+  int64 sequence = 3;
+  bytes prev_hash = 4;
+  bytes merkle_root = 5;
+  bytes block_hash = 6;
+  google.protobuf.Timestamp timestamp = 7;
+  ConfigIntent intent = 8;
+  ConfigurationPayload configuration = 9;
+  ConfigDiff diff = 10;
+  ValidationResult validation = 11;
+  string author_id = 12;
+  bytes author_signature = 13;
+  repeated ConfigApproval approvals = 14;
+  bytes system_signature = 15;
+  string deployment_status = 16;
+  bytes device_signature = 17;
+  google.protobuf.Timestamp applied_at = 18;
+}
+
+message ConfigIntent {
+  string description = 1;
+  repeated string policy_refs = 2;
+  string change_ticket = 3;
+  map<string, string> tags = 4;
+}
+
+message ConfigurationPayload {
+  string format = 1;
+  bytes tree = 2; // JSON-encoded ConfigTree
+  string vendor_config = 3;
+  string raw = 4;
+}
+
+message ConfigDiff {
+  repeated ConfigChange added = 1;
+  repeated ConfigChange modified = 2;
+  repeated ConfigChange removed = 3;
+}
+
+message ConfigChange {
+  string path = 1;
+  string old_value = 2;
+  string new_value = 3;
+}
+
+message ConfigApproval {
+  string approver_id = 1;
+  google.protobuf.Timestamp approval_time = 2;
+  string comment = 3;
+  bytes signature = 4;
+}
+
+message CreateConfigBlockRequest {
+  string device_id = 1;
+  ConfigIntent intent = 2;
+  ConfigurationPayload configuration = 3;
+}
+
+message GetConfigBlockRequest {
+  string id = 1;
+}
+
+message GetConfigHistoryRequest {
+  string device_id = 1;
+  int32 limit = 2;
+  int32 offset = 3;
+}
+
+message GetConfigHistoryResponse {
+  repeated ConfigBlock blocks = 1;
+  int32 total = 2;
+}
+
+message ValidateConfigRequest {
+  string device_id = 1;
+  ConfigurationPayload configuration = 2;
+}
+
+message ValidationResult {
+  bool syntax_valid = 1;
+  bool policy_valid = 2;
+  bool security_valid = 3;
+  repeated ValidationError errors = 4;
+  repeated ValidationWarning warnings = 5;
+}
+
+message ValidationError {
+  string code = 1;
+  string message = 2;
+  string path = 3;
+}
+
+message ValidationWarning {
+  string code = 1;
+  string message = 2;
+  string path = 3;
+}
+
+message DeployConfigRequest {
+  string block_id = 1;
+  repeated VerificationCheck verification_checks = 2;
+  bool rollback_on_failure = 3;
+}
+
+message VerificationCheck {
+  string type = 1;
+  map<string, string> parameters = 2;
+  string expected = 3;
+  int32 timeout_seconds = 4;
+}
+
+message DeploymentStatus {
+  string block_id = 1;
+  string phase = 2;
+  google.protobuf.Timestamp started_at = 3;
+  google.protobuf.Timestamp completed_at = 4;
+  string error = 5;
+}
+
+message GetDeploymentStatusRequest {
+  string block_id = 1;
+}
+
+message RollbackConfigRequest {
+  string device_id = 1;
+  int64 target_sequence = 2;
+  string reason = 3;
+}
+
+message VerifyChainRequest {
+  string device_id = 1;
+}
+
+message VerifyChainResponse {
+  bool valid = 1;
+  int64 last_valid_sequence = 2;
+  string error = 3;
+}
+
+// =============================================================================
+// Attestation Service
+// =============================================================================
+
+service AttestationService {
+  // Submit attestation report
+  rpc SubmitAttestation(SubmitAttestationRequest) returns (AttestationResult);
+  // Get attestation status
+  rpc GetAttestationStatus(GetAttestationStatusRequest) returns (AttestationResult);
+  // Get expected measurements
+  rpc GetExpectedMeasurements(GetExpectedMeasurementsRequest) returns (ExpectedMeasurements);
+  // Update expected measurements
+  rpc UpdateExpectedMeasurements(UpdateExpectedMeasurementsRequest) returns (ExpectedMeasurements);
+  // Get nonce for attestation
+  rpc GetAttestationNonce(GetAttestationNonceRequest) returns (GetAttestationNonceResponse);
+}
+
+message SubmitAttestationRequest {
+  string device_id = 1;
+  string type = 2;
+  DeviceMeasurements measurements = 3;
+  bytes pcr_values = 4;
+  bytes tpm_signature = 5;
+  bytes software_signature = 6;
+  bytes nonce = 7;
+  bytes quote_data = 8;
+}
+
+message DeviceMeasurements {
+  bytes firmware_hash = 1;
+  bytes bootloader_hash = 2;
+  bytes os_hash = 3;
+  bytes kernel_hash = 4;
+  bytes running_config_hash = 5;
+  bytes startup_config_hash = 6;
+  bytes agent_hash = 7;
+  repeated ProcessInfo active_processes = 8;
+  repeated string loaded_modules = 9;
+  repeated PortInfo open_ports = 10;
+  map<string, string> interface_macs = 11;
+}
+
+message ProcessInfo {
+  string name = 1;
+  int32 pid = 2;
+  string command = 3;
+  bytes hash = 4;
+}
+
+message PortInfo {
+  int32 port = 1;
+  string protocol = 2;
+  string process = 3;
+}
+
+message AttestationResult {
+  string device_id = 1;
+  string report_id = 2;
+  string status = 3;
+  google.protobuf.Timestamp verified_at = 4;
+  bool signature_valid = 5;
+  bool nonce_valid = 6;
+  bool measurements_valid = 7;
+  repeated MeasurementMismatch mismatches = 8;
+  repeated string warnings = 9;
+  string recommended_action = 10;
+}
+
+message MeasurementMismatch {
+  string field = 1;
+  bytes expected = 2;
+  bytes actual = 3;
+}
+
+message GetAttestationStatusRequest {
+  string device_id = 1;
+}
+
+message GetExpectedMeasurementsRequest {
+  string device_id = 1;
+}
+
+message ExpectedMeasurements {
+  string device_id = 1;
+  bytes firmware_hash = 2;
+  bytes os_hash = 3;
+  bytes agent_hash = 4;
+  repeated string allowed_processes = 5;
+  repeated bytes allowed_process_hashes = 6;
+  repeated string allowed_modules = 7;
+  repeated PortInfo expected_ports = 8;
+  string min_os_version = 9;
+  string min_agent_version = 10;
+}
+
+message UpdateExpectedMeasurementsRequest {
+  string device_id = 1;
+  ExpectedMeasurements measurements = 2;
+}
+
+message GetAttestationNonceRequest {
+  string device_id = 1;
+}
+
+message GetAttestationNonceResponse {
+  bytes nonce = 1;
+  google.protobuf.Timestamp expires_at = 2;
+}
+
+// =============================================================================
+// Audit Service
+// =============================================================================
+
+service AuditService {
+  // Query audit events
+  rpc QueryAuditEvents(QueryAuditEventsRequest) returns (QueryAuditEventsResponse);
+  // Get audit event
+  rpc GetAuditEvent(GetAuditEventRequest) returns (AuditEvent);
+  // Verify audit chain
+  rpc VerifyAuditChain(VerifyAuditChainRequest) returns (VerifyAuditChainResponse);
+  // Stream audit events
+  rpc StreamAuditEvents(StreamAuditEventsRequest) returns (stream AuditEvent);
+}
+
+message AuditEvent {
+  string id = 1;
+  int64 sequence = 2;
+  bytes prev_hash = 3;
+  bytes event_hash = 4;
+  google.protobuf.Timestamp timestamp = 5;
+  string event_type = 6;
+  string severity = 7;
+  string actor_id = 8;
+  string actor_type = 9;
+  string actor_name = 10;
+  string resource_type = 11;
+  string resource_id = 12;
+  string resource_name = 13;
+  string action = 14;
+  string result = 15;
+  map<string, string> details = 16;
+  string capability_id = 17;
+  string operation_id = 18;
+  string session_id = 19;
+  bytes operation_signature = 20;
+  string source_ip = 21;
+  string user_agent = 22;
+  string request_id = 23;
+}
+
+message QueryAuditEventsRequest {
+  google.protobuf.Timestamp from = 1;
+  google.protobuf.Timestamp to = 2;
+  repeated string event_types = 3;
+  repeated string severities = 4;
+  string actor_id = 5;
+  string resource_type = 6;
+  string resource_id = 7;
+  string result = 8;
+  int32 limit = 9;
+  int32 offset = 10;
+  string order_by = 11;
+}
+
+message QueryAuditEventsResponse {
+  repeated AuditEvent events = 1;
+  int32 total = 2;
+}
+
+message GetAuditEventRequest {
+  string id = 1;
+}
+
+message VerifyAuditChainRequest {
+  int64 from_sequence = 1;
+  int64 to_sequence = 2;
+}
+
+message VerifyAuditChainResponse {
+  bool valid = 1;
+  int64 last_valid_sequence = 2;
+  string error = 3;
+}
+
+message StreamAuditEventsRequest {
+  repeated string event_types = 1;
+  repeated string severities = 2;
+}

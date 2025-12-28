@@ -1,0 +1,81 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "zt-nms.fullname" . }}-config
+  labels:
+    {{- include "zt-nms.labels" . | nindent 4 }}
+data:
+  config.yaml: |
+    server:
+      port: {{ .Values.apiGateway.config.serverPort }}
+      tls:
+        enabled: {{ .Values.apiGateway.config.tlsEnabled }}
+        cert_file: "/etc/zt-nms/tls/tls.crt"
+        key_file: "/etc/zt-nms/tls/tls.key"
+    
+    database:
+      host: {{ include "zt-nms.postgresql.host" . | quote }}
+      port: {{ include "zt-nms.postgresql.port" . }}
+      name: {{ include "zt-nms.postgresql.database" . | quote }}
+      sslmode: "require"
+      max_conns: 25
+    
+    redis:
+      host: {{ include "zt-nms.redis.host" . | quote }}
+      port: {{ include "zt-nms.redis.port" . }}
+    
+    nats:
+      url: {{ include "zt-nms.nats.url" . | quote }}
+    
+    etcd:
+      endpoints:
+        - {{ include "zt-nms.etcd.endpoints" . | quote }}
+    
+    identity:
+      mfa_required: {{ .Values.identityService.config.mfaRequired }}
+      session_timeout: {{ .Values.identityService.config.sessionTimeout | quote }}
+      max_sessions: {{ .Values.identityService.config.maxSessions }}
+    
+    capability:
+      default_ttl: {{ .Values.capabilityIssuer.config.defaultTTL | quote }}
+      max_ttl: {{ .Values.capabilityIssuer.config.maxTTL | quote }}
+      max_delegation_depth: {{ .Values.capabilityIssuer.config.maxDelegationDepth }}
+    
+    policy:
+      cache_ttl: {{ .Values.policyEngine.config.cacheTTL | quote }}
+      default_effect: {{ .Values.policyEngine.config.defaultEffect | quote }}
+      evaluation_timeout: {{ .Values.policyEngine.config.evaluationTimeout | quote }}
+    
+    config:
+      validation:
+        syntax_check: true
+        policy_check: true
+        security_check: true
+        simulation: true
+      deployment:
+        require_approval: {{ .Values.configManager.config.requireApproval }}
+        approval_quorum: {{ .Values.configManager.config.approvalQuorum }}
+        auto_rollback: {{ .Values.configManager.config.autoRollback }}
+        verification_timeout: {{ .Values.configManager.config.verificationTimeout | quote }}
+    
+    proxy:
+      connection_timeout: {{ .Values.deviceProxy.config.connectionTimeout | quote }}
+      command_timeout: {{ .Values.deviceProxy.config.commandTimeout | quote }}
+      max_output_size: {{ .Values.deviceProxy.config.maxOutputSize }}
+      session_recording: {{ .Values.deviceProxy.config.sessionRecording }}
+    
+    attestation:
+      enabled: {{ .Values.attestationVerifier.enabled }}
+      require_tpm: {{ .Values.attestationVerifier.config.requireTPM }}
+      interval: {{ .Values.attestationVerifier.config.attestInterval | quote }}
+      failure_action: {{ .Values.attestationVerifier.config.failureAction | quote }}
+    
+    audit:
+      enabled: {{ .Values.auditService.enabled }}
+      retention_days: {{ .Values.auditService.config.retentionDays }}
+      archive_enabled: {{ .Values.auditService.config.archiveEnabled }}
+      archive_destination: {{ .Values.auditService.config.archiveDestination | quote }}
+    
+    logging:
+      level: {{ .Values.apiGateway.config.logLevel | quote }}
+      format: {{ .Values.apiGateway.config.logFormat | quote }}

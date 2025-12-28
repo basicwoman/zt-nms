@@ -1,0 +1,125 @@
+{
+  "description": "Тестовые идентичности для системы ZT-NMS",
+  "version": "1.0.0",
+  "generated_at": "2025-01-15T00:00:00Z",
+  "identities": [
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440001",
+      "type": "operator",
+      "status": "active",
+      "attributes": {
+        "username": "admin_test",
+        "email": "admin@test.zt-nms.local",
+        "display_name": "Тестовый администратор",
+        "groups": ["admins", "network-ops"],
+        "roles": ["admin"],
+        "clearance_level": 5,
+        "mfa_enabled": true,
+        "certifications": ["CCNA", "CCNP", "CISSP"]
+      },
+      "public_key": "MCowBQYDK2VwAyEAaGVsbG93b3JsZHRlc3RrZXkxMjM0NTY3ODkwYWJjZGVm",
+      "certificate": null,
+      "created_at": "2025-01-01T00:00:00Z",
+      "updated_at": "2025-01-01T00:00:00Z",
+      "created_by": null
+    },
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440002",
+      "type": "operator",
+      "status": "active",
+      "attributes": {
+        "username": "viewer_test",
+        "email": "viewer@test.zt-nms.local",
+        "display_name": "Тестовый наблюдатель",
+        "groups": ["noc-viewers"],
+        "roles": ["viewer"],
+        "clearance_level": 1,
+        "mfa_enabled": false,
+        "certifications": []
+      },
+      "public_key": "MCowBQYDK2VwAyEAdmlld2VydGVzdGtleTEyMzQ1Njc4OTBhYmNkZWZnaGlq",
+      "certificate": null,
+      "created_at": "2025-01-01T00:00:00Z",
+      "updated_at": "2025-01-01T00:00:00Z",
+      "created_by": "550e8400-e29b-41d4-a716-446655440001"
+    },
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440003",
+      "type": "operator",
+      "status": "active",
+      "attributes": {
+        "username": "engineer_test",
+        "email": "engineer@test.zt-nms.local",
+        "display_name": "Тестовый инженер",
+        "groups": ["network-ops"],
+        "roles": ["engineer"],
+        "clearance_level": 3,
+        "mfa_enabled": true,
+        "certifications": ["CCNA"]
+      },
+      "public_key": "MCowBQYDK2VwAyEAZW5naW5lZXJ0ZXN0a2V5MTIzNDU2Nzg5MGFiY2RlZmdo",
+      "certificate": null,
+      "created_at": "2025-01-01T00:00:00Z",
+      "updated_at": "2025-01-01T00:00:00Z",
+      "created_by": "550e8400-e29b-41d4-a716-446655440001"
+    },
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440004",
+      "type": "service",
+      "status": "active",
+      "attributes": {
+        "name": "backup_service",
+        "owner": "admin_test",
+        "purpose": "Автоматическое резервное копирование конфигураций",
+        "allowed_operations": ["read", "backup"],
+        "source_ips": ["192.168.1.0/24"],
+        "max_ops_per_hour": 100
+      },
+      "public_key": "MCowBQYDK2VwAyEAYmFja3Vwc2VydmljZWtleTEyMzQ1Njc4OTBhYmNkZWZn",
+      "certificate": null,
+      "created_at": "2025-01-01T00:00:00Z",
+      "updated_at": "2025-01-01T00:00:00Z",
+      "created_by": "550e8400-e29b-41d4-a716-446655440001"
+    },
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440005",
+      "type": "operator",
+      "status": "suspended",
+      "attributes": {
+        "username": "suspended_user",
+        "email": "suspended@test.zt-nms.local",
+        "display_name": "Приостановленный пользователь",
+        "groups": ["network-ops"],
+        "roles": ["engineer"],
+        "clearance_level": 2,
+        "mfa_enabled": false,
+        "certifications": []
+      },
+      "public_key": "MCowBQYDK2VwAyEAc3VzcGVuZGVkdXNlcmtleTEyMzQ1Njc4OTBhYmNkZWY=",
+      "certificate": null,
+      "created_at": "2025-01-01T00:00:00Z",
+      "updated_at": "2025-01-10T00:00:00Z",
+      "created_by": "550e8400-e29b-41d4-a716-446655440001"
+    },
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440006",
+      "type": "operator",
+      "status": "revoked",
+      "attributes": {
+        "username": "revoked_user",
+        "email": "revoked@test.zt-nms.local",
+        "display_name": "Отозванный пользователь",
+        "groups": [],
+        "roles": [],
+        "clearance_level": 0,
+        "mfa_enabled": false,
+        "certifications": []
+      },
+      "public_key": "MCowBQYDK2VwAyEAcmV2b2tlZHVzZXJrZXkxMjM0NTY3ODkwYWJjZGVmZ2g=",
+      "certificate": null,
+      "created_at": "2024-06-01T00:00:00Z",
+      "updated_at": "2024-12-01T00:00:00Z",
+      "created_by": "550e8400-e29b-41d4-a716-446655440001"
+    }
+  ]
+}

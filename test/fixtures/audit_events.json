@@ -1,0 +1,404 @@
+{
+  "description": "Тестовые события аудита для системы ZT-NMS",
+  "version": "1.0.0",
+  "generated_at": "2025-01-15T00:00:00Z",
+  "audit_events": [
+    {
+      "id": "cc0e8400-e29b-41d4-a716-446655440001",
+      "event_type": "SIGNATURE_FAILURE",
+      "severity": "HIGH",
+      "timestamp": "2025-01-15T10:30:00Z",
+      "subject_id": null,
+      "subject_type": null,
+      "resource_type": "device",
+      "resource_id": "660e8400-e29b-41d4-a716-446655440001",
+      "action": "config_deploy",
+      "outcome": "failure",
+      "source_ip": "10.0.0.100",
+      "user_agent": "curl/7.68.0",
+      "request_id": "req-001-abc123",
+      "details": {
+        "reason": "Invalid signature format",
+        "expected_algorithm": "Ed25519",
+        "received_algorithm": "unknown",
+        "signature_bytes": 64,
+        "public_key_id": "unknown"
+      },
+      "prev_hash": null,
+      "event_hash": "sha256:event_hash_001_signature_failure_abc123def456789012345"
+    },
+    {
+      "id": "cc0e8400-e29b-41d4-a716-446655440002",
+      "event_type": "REPLAY_DETECTED",
+      "severity": "HIGH",
+      "timestamp": "2025-01-15T10:35:00Z",
+      "subject_id": null,
+      "subject_type": null,
+      "resource_type": "device",
+      "resource_id": "660e8400-e29b-41d4-a716-446655440002",
+      "action": "config_deploy",
+      "outcome": "failure",
+      "source_ip": "10.0.0.101",
+      "user_agent": "python-requests/2.28.0",
+      "request_id": "req-002-def456",
+      "details": {
+        "reason": "Nonce already used",
+        "original_nonce": "nonce_12345_already_used",
+        "original_timestamp": "2025-01-15T09:00:00Z",
+        "time_difference_seconds": 5700,
+        "original_request_id": "req-original-xyz789"
+      },
+      "prev_hash": "sha256:event_hash_001_signature_failure_abc123def456789012345",
+      "event_hash": "sha256:event_hash_002_replay_detected_def456789012345678901"
+    },
+    {
+      "id": "cc0e8400-e29b-41d4-a716-446655440003",
+      "event_type": "AUTH_SUCCESS",
+      "severity": "INFO",
+      "timestamp": "2025-01-15T08:00:00Z",
+      "subject_id": "550e8400-e29b-41d4-a716-446655440001",
+      "subject_type": "operator",
+      "resource_type": "system",
+      "resource_id": "api-gateway",
+      "action": "authenticate",
+      "outcome": "success",
+      "source_ip": "192.168.1.50",
+      "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+      "request_id": "req-003-ghi789",
+      "details": {
+        "username": "admin_test",
+        "auth_method": "ed25519_challenge",
+        "mfa_verified": true,
+        "mfa_method": "totp",
+        "session_id": "sess-001-abc123",
+        "token_issued": true,
+        "token_ttl_hours": 8
+      },
+      "prev_hash": "sha256:event_hash_002_replay_detected_def456789012345678901",
+      "event_hash": "sha256:event_hash_003_auth_success_ghi789012345678901234567"
+    },
+    {
+      "id": "cc0e8400-e29b-41d4-a716-446655440004",
+      "event_type": "POLICY_VIOLATION",
+      "severity": "MEDIUM",
+      "timestamp": "2025-01-15T11:00:00Z",
+      "subject_id": "550e8400-e29b-41d4-a716-446655440002",
+      "subject_type": "operator",
+      "resource_type": "device",
+      "resource_id": "660e8400-e29b-41d4-a716-446655440001",
+      "action": "config_deploy",
+      "outcome": "denied",
+      "source_ip": "192.168.1.51",
+      "user_agent": "zt-nms-cli/1.0.0",
+      "request_id": "req-004-jkl012",
+      "details": {
+        "username": "viewer_test",
+        "requested_action": "deploy",
+        "policy_evaluated": "noc-read-only",
+        "rule_matched": "noc-deny-write",
+        "denial_reason": "User group 'noc-viewers' not authorized for write operations",
+        "permitted_actions": ["read", "list", "view"]
+      },
+      "prev_hash": "sha256:event_hash_003_auth_success_ghi789012345678901234567",
+      "event_hash": "sha256:event_hash_004_policy_violation_jkl012345678901234567"
+    },
+    {
+      "id": "cc0e8400-e29b-41d4-a716-446655440005",
+      "event_type": "ATTESTATION_FAILURE",
+      "severity": "CRITICAL",
+      "timestamp": "2025-01-14T00:00:00Z",
+      "subject_id": null,
+      "subject_type": "device",
+      "resource_type": "device",
+      "resource_id": "660e8400-e29b-41d4-a716-446655440008",
+      "action": "attestation_verify",
+      "outcome": "failure",
+      "source_ip": "192.168.1.201",
+      "user_agent": "zt-nms-agent/1.0.0",
+      "request_id": "req-005-mno345",
+      "details": {
+        "hostname": "untrusted-device",
+        "firmware_hash_match": false,
+        "os_hash_match": false,
+        "anomalies": [
+          "Firmware hash mismatch",
+          "OS hash mismatch",
+          "Suspicious process: malware_process",
+          "Suspicious port: 31337"
+        ],
+        "trust_score": 0,
+        "previous_status": "unknown",
+        "new_status": "quarantined",
+        "quarantine_actions_taken": ["network_isolation", "access_revoked", "incident_created"]
+      },
+      "prev_hash": "sha256:event_hash_004_policy_violation_jkl012345678901234567",
+      "event_hash": "sha256:event_hash_005_attestation_failure_mno345678901234567"
+    },
+    {
+      "id": "cc0e8400-e29b-41d4-a716-446655440006",
+      "event_type": "CONFIG_DEPLOYED",
+      "severity": "INFO",
+      "timestamp": "2025-01-10T02:00:00Z",
+      "subject_id": "550e8400-e29b-41d4-a716-446655440003",
+      "subject_type": "operator",
+      "resource_type": "device",
+      "resource_id": "660e8400-e29b-41d4-a716-446655440001",
+      "action": "config_deploy",
+      "outcome": "success",
+      "source_ip": "192.168.1.52",
+      "user_agent": "zt-nms-cli/1.0.0",
+      "request_id": "req-006-pqr678",
+      "details": {
+        "username": "engineer_test",
+        "config_block_id": "990e8400-e29b-41d4-a716-446655440002",
+        "sequence": 2,
+        "change_ticket": "CHG-2025-0015",
+        "description": "Добавление зоны OSPF area 1",
+        "phases_completed": ["validating", "preparing", "committing", "verifying"],
+        "deployment_time_seconds": 45,
+        "device_signature_verified": true
+      },
+      "prev_hash": "sha256:event_hash_005_attestation_failure_mno345678901234567",
+      "event_hash": "sha256:event_hash_006_config_deployed_pqr678901234567890123"
+    },
+    {
+      "id": "cc0e8400-e29b-41d4-a716-446655440007",
+      "event_type": "CONFIG_ROLLBACK",
+      "severity": "WARNING",
+      "timestamp": "2025-01-14T02:30:00Z",
+      "subject_id": "system",
+      "subject_type": "system",
+      "resource_type": "device",
+      "resource_id": "660e8400-e29b-41d4-a716-446655440001",
+      "action": "config_rollback",
+      "outcome": "success",
+      "source_ip": "127.0.0.1",
+      "user_agent": "zt-nms-config-manager/1.0.0",
+      "request_id": "req-007-stu901",
+      "details": {
+        "config_block_id": "990e8400-e29b-41d4-a716-446655440005",
+        "rollback_reason": "Verification failed - configuration hash mismatch",
+        "rolled_back_to_sequence": 2,
+        "original_author": "engineer_test",
+        "verification_failure_details": {
+          "expected_hash": "sha256:expected_config_hash_abc123",
+          "actual_hash": "sha256:actual_config_hash_def456",
+          "phase_failed": "verifying"
+        }
+      },
+      "prev_hash": "sha256:event_hash_006_config_deployed_pqr678901234567890123",
+      "event_hash": "sha256:event_hash_007_config_rollback_stu901234567890123456"
+    },
+    {
+      "id": "cc0e8400-e29b-41d4-a716-446655440008",
+      "event_type": "CAPABILITY_ISSUED",
+      "severity": "INFO",
+      "timestamp": "2025-01-15T00:00:00Z",
+      "subject_id": "550e8400-e29b-41d4-a716-446655440001",
+      "subject_type": "operator",
+      "resource_type": "capability",
+      "resource_id": "aa0e8400-e29b-41d4-a716-446655440001",
+      "action": "capability_issue",
+      "outcome": "success",
+      "source_ip": "192.168.1.50",
+      "user_agent": "zt-nms-cli/1.0.0",
+      "request_id": "req-008-vwx234",
+      "details": {
+        "capability_id": "aa0e8400-e29b-41d4-a716-446655440001",
+        "subject": "admin_test",
+        "resources": ["660e8400-e29b-41d4-a716-446655440001"],
+        "permissions": ["read", "write", "deploy", "backup"],
+        "ttl_hours": 8,
+        "policy_evaluated": "network-admin-full-access",
+        "constraints_applied": {
+          "source_ips": ["192.168.1.0/24", "10.0.0.0/8"],
+          "require_mfa": false
+        }
+      },
+      "prev_hash": "sha256:event_hash_007_config_rollback_stu901234567890123456",
+      "event_hash": "sha256:event_hash_008_capability_issued_vwx234567890123456789"
+    },
+    {
+      "id": "cc0e8400-e29b-41d4-a716-446655440009",
+      "event_type": "CAPABILITY_REVOKED",
+      "severity": "WARNING",
+      "timestamp": "2025-01-10T00:00:00Z",
+      "subject_id": "550e8400-e29b-41d4-a716-446655440001",
+      "subject_type": "operator",
+      "resource_type": "capability",
+      "resource_id": "aa0e8400-e29b-41d4-a716-446655440007",
+      "action": "capability_revoke",
+      "outcome": "success",
+      "source_ip": "192.168.1.50",
+      "user_agent": "zt-nms-web/1.0.0",
+      "request_id": "req-009-yza567",
+      "details": {
+        "capability_id": "aa0e8400-e29b-41d4-a716-446655440007",
+        "revoked_subject": "suspended_user",
+        "revocation_reason": "User identity suspended",
+        "triggered_by": "identity_status_change",
+        "remaining_uses_before_revocation": 850
+      },
+      "prev_hash": "sha256:event_hash_008_capability_issued_vwx234567890123456789",
+      "event_hash": "sha256:event_hash_009_capability_revoked_yza567890123456789012"
+    },
+    {
+      "id": "cc0e8400-e29b-41d4-a716-446655440010",
+      "event_type": "EMERGENCY_DECLARED",
+      "severity": "CRITICAL",
+      "timestamp": "2025-01-15T10:00:00Z",
+      "subject_id": "550e8400-e29b-41d4-a716-446655440001",
+      "subject_type": "operator",
+      "resource_type": "system",
+      "resource_id": "emergency-mode",
+      "action": "emergency_declare",
+      "outcome": "success",
+      "source_ip": "192.168.1.50",
+      "user_agent": "zt-nms-cli/1.0.0",
+      "request_id": "req-010-bcd890",
+      "details": {
+        "emergency_id": "EMG-2025-001",
+        "declared_by": "admin_test",
+        "reason": "Critical firewall issue - immediate fix required",
+        "affected_resources": ["660e8400-e29b-41d4-a716-446655440005"],
+        "duration_hours": 4,
+        "auto_expire": true,
+        "notifications_sent": ["security-team", "management"],
+        "emergency_capabilities_issued": ["aa0e8400-e29b-41d4-a716-446655440004"]
+      },
+      "prev_hash": "sha256:event_hash_009_capability_revoked_yza567890123456789012",
+      "event_hash": "sha256:event_hash_010_emergency_declared_bcd890123456789012345"
+    },
+    {
+      "id": "cc0e8400-e29b-41d4-a716-446655440011",
+      "event_type": "BRUTE_FORCE_DETECTED",
+      "severity": "HIGH",
+      "timestamp": "2025-01-15T12:00:00Z",
+      "subject_id": null,
+      "subject_type": null,
+      "resource_type": "system",
+      "resource_id": "api-gateway",
+      "action": "authenticate",
+      "outcome": "blocked",
+      "source_ip": "10.0.0.200",
+      "user_agent": "python-requests/2.28.0",
+      "request_id": "req-011-efg123",
+      "details": {
+        "failed_attempts": 15,
+        "time_window_minutes": 5,
+        "threshold": 5,
+        "usernames_attempted": ["admin", "root", "administrator", "test"],
+        "block_duration_minutes": 30,
+        "automatic_block_applied": true
+      },
+      "prev_hash": "sha256:event_hash_010_emergency_declared_bcd890123456789012345",
+      "event_hash": "sha256:event_hash_011_brute_force_detected_efg123456789012345"
+    },
+    {
+      "id": "cc0e8400-e29b-41d4-a716-446655440012",
+      "event_type": "BACKUP_CREATED",
+      "severity": "INFO",
+      "timestamp": "2025-01-15T03:00:00Z",
+      "subject_id": "550e8400-e29b-41d4-a716-446655440004",
+      "subject_type": "service",
+      "resource_type": "backup",
+      "resource_id": "backup-001-core-rtr-01",
+      "action": "backup_create",
+      "outcome": "success",
+      "source_ip": "192.168.1.100",
+      "user_agent": "zt-nms-backup-service/1.0.0",
+      "request_id": "req-012-hij456",
+      "details": {
+        "device_id": "660e8400-e29b-41d4-a716-446655440001",
+        "hostname": "core-rtr-01",
+        "backup_type": "scheduled",
+        "backup_size_bytes": 45678,
+        "config_hash": "sha256:backup_config_hash_abc123def456789012345678901234567890",
+        "storage_location": "/backups/2025/01/15/core-rtr-01_030000.cfg",
+        "retention_days": 90
+      },
+      "prev_hash": "sha256:event_hash_011_brute_force_detected_efg123456789012345",
+      "event_hash": "sha256:event_hash_012_backup_created_hij456789012345678901234"
+    }
+  ],
+  "event_types": {
+    "SIGNATURE_FAILURE": {
+      "description": "Неудачная верификация криптографической подписи",
+      "default_severity": "HIGH",
+      "alert_threshold": 3,
+      "alert_window_minutes": 5
+    },
+    "REPLAY_DETECTED": {
+      "description": "Обнаружена атака воспроизведения (повторное использование nonce)",
+      "default_severity": "HIGH",
+      "alert_threshold": 1,
+      "alert_window_minutes": 1
+    },
+    "AUTH_SUCCESS": {
+      "description": "Успешная аутентификация пользователя",
+      "default_severity": "INFO",
+      "alert_threshold": null,
+      "alert_window_minutes": null
+    },
+    "AUTH_FAILURE": {
+      "description": "Неудачная попытка аутентификации",
+      "default_severity": "WARNING",
+      "alert_threshold": 5,
+      "alert_window_minutes": 5
+    },
+    "POLICY_VIOLATION": {
+      "description": "Нарушение политики доступа",
+      "default_severity": "MEDIUM",
+      "alert_threshold": 5,
+      "alert_window_minutes": 10
+    },
+    "ATTESTATION_FAILURE": {
+      "description": "Неудачная аттестация устройства",
+      "default_severity": "CRITICAL",
+      "alert_threshold": 1,
+      "alert_window_minutes": 1
+    },
+    "CONFIG_DEPLOYED": {
+      "description": "Успешное развёртывание конфигурации",
+      "default_severity": "INFO",
+      "alert_threshold": null,
+      "alert_window_minutes": null
+    },
+    "CONFIG_ROLLBACK": {
+      "description": "Откат конфигурации",
+      "default_severity": "WARNING",
+      "alert_threshold": 2,
+      "alert_window_minutes": 60
+    },
+    "CAPABILITY_ISSUED": {
+      "description": "Выдан capability-токен",
+      "default_severity": "INFO",
+      "alert_threshold": null,
+      "alert_window_minutes": null
+    },
+    "CAPABILITY_REVOKED": {
+      "description": "Отозван capability-токен",
+      "default_severity": "WARNING",
+      "alert_threshold": null,
+      "alert_window_minutes": null
+    },
+    "EMERGENCY_DECLARED": {
+      "description": "Объявлен аварийный режим",
+      "default_severity": "CRITICAL",
+      "alert_threshold": 1,
+      "alert_window_minutes": 1
+    },
+    "BRUTE_FORCE_DETECTED": {
+      "description": "Обнаружена атака перебора",
+      "default_severity": "HIGH",
+      "alert_threshold": 1,
+      "alert_window_minutes": 1
+    },
+    "BACKUP_CREATED": {
+      "description": "Создана резервная копия конфигурации",
+      "default_severity": "INFO",
+      "alert_threshold": null,
+      "alert_window_minutes": null
+    }
+  }
+}

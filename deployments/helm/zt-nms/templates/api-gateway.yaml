@@ -1,0 +1,241 @@
+{{- if .Values.apiGateway.enabled -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "zt-nms.fullname" . }}-api-gateway
+  labels:
+    {{- include "zt-nms.labels" . | nindent 4 }}
+    app.kubernetes.io/component: api-gateway
+spec:
+  {{- if not .Values.apiGateway.autoscaling.enabled }}
+  replicas: {{ .Values.apiGateway.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "zt-nms.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: api-gateway
+  template:
+    metadata:
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "{{ .Values.apiGateway.service.metricsPort }}"
+      labels:
+        {{- include "zt-nms.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: api-gateway
+    spec:
+      {{- with .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "zt-nms.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.security.podSecurityContext | nindent 8 }}
+      containers:
+        - name: api-gateway
+          securityContext:
+            {{- toYaml .Values.security.containerSecurityContext | nindent 12 }}
+          image: "{{ .Values.global.imageRegistry }}{{ .Values.apiGateway.image.repository }}:{{ .Values.apiGateway.image.tag }}"
+          imagePullPolicy: {{ .Values.apiGateway.image.pullPolicy }}
+          ports:
+            - name: https
+              containerPort: {{ .Values.apiGateway.config.serverPort }}
+              protocol: TCP
+            - name: metrics
+              containerPort: {{ .Values.apiGateway.service.metricsPort }}
+              protocol: TCP
+          env:
+            - name: ZTNMS_SERVER_PORT
+              value: "{{ .Values.apiGateway.config.serverPort }}"
+            - name: ZTNMS_SERVER_TLS_ENABLED
+              value: "{{ .Values.apiGateway.config.tlsEnabled }}"
+            - name: ZTNMS_LOG_LEVEL
+              value: "{{ .Values.apiGateway.config.logLevel }}"
+            - name: ZTNMS_LOG_FORMAT
+              value: "{{ .Values.apiGateway.config.logFormat }}"
+            - name: ZTNMS_DATABASE_HOST
+              value: {{ include "zt-nms.postgresql.host" . | quote }}
+            - name: ZTNMS_DATABASE_PORT
+              value: {{ include "zt-nms.postgresql.port" . | quote }}
+            - name: ZTNMS_DATABASE_NAME
+              value: {{ include "zt-nms.postgresql.database" . | quote }}
+            - name: ZTNMS_DATABASE_USER
+              value: {{ include "zt-nms.postgresql.username" . | quote }}
+            - name: ZTNMS_DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "zt-nms.postgresql.secretName" . }}
+                  key: {{ include "zt-nms.postgresql.secretKey" . }}
+            - name: ZTNMS_REDIS_HOST
+              value: {{ include "zt-nms.redis.host" . | quote }}
+            - name: ZTNMS_REDIS_PORT
+              value: {{ include "zt-nms.redis.port" . | quote }}
+            - name: ZTNMS_REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "zt-nms.redis.secretName" . }}
+                  key: {{ include "zt-nms.redis.secretKey" . }}
+            - name: ZTNMS_NATS_URL
+              value: {{ include "zt-nms.nats.url" . | quote }}
+            - name: ZTNMS_ETCD_ENDPOINTS
+              value: {{ include "zt-nms.etcd.endpoints" . | quote }}
+          volumeMounts:
+            - name: config
+              mountPath: /etc/zt-nms
+              readOnly: true
+            - name: tls
+              mountPath: /etc/zt-nms/tls
+              readOnly: true
+            - name: tmp
+              mountPath: /tmp
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: https
+              scheme: HTTPS
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: https
+              scheme: HTTPS
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 3
+          resources:
+            {{- toYaml .Values.apiGateway.resources | nindent 12 }}
+      volumes:
+        - name: config
+          configMap:
+            name: {{ include "zt-nms.fullname" . }}-config
+        - name: tls
+          secret:
+            secretName: {{ include "zt-nms.tls.secretName" . }}
+        - name: tmp
+          emptyDir: {}
+      {{- with .Values.apiGateway.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.apiGateway.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.apiGateway.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "zt-nms.fullname" . }}-api-gateway
+  labels:
+    {{- include "zt-nms.labels" . | nindent 4 }}
+    app.kubernetes.io/component: api-gateway
+spec:
+  type: {{ .Values.apiGateway.service.type }}
+  ports:
+    - port: {{ .Values.apiGateway.service.port }}
+      targetPort: https
+      protocol: TCP
+      name: https
+    - port: {{ .Values.apiGateway.service.metricsPort }}
+      targetPort: metrics
+      protocol: TCP
+      name: metrics
+  selector:
+    {{- include "zt-nms.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: api-gateway
+{{- if .Values.apiGateway.autoscaling.enabled }}
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ include "zt-nms.fullname" . }}-api-gateway
+  labels:
+    {{- include "zt-nms.labels" . | nindent 4 }}
+    app.kubernetes.io/component: api-gateway
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ include "zt-nms.fullname" . }}-api-gateway
+  minReplicas: {{ .Values.apiGateway.autoscaling.minReplicas }}
+  maxReplicas: {{ .Values.apiGateway.autoscaling.maxReplicas }}
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.apiGateway.autoscaling.targetCPUUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.apiGateway.autoscaling.targetMemoryUtilizationPercentage }}
+{{- end }}
+{{- if .Values.apiGateway.podDisruptionBudget.enabled }}
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "zt-nms.fullname" . }}-api-gateway
+  labels:
+    {{- include "zt-nms.labels" . | nindent 4 }}
+    app.kubernetes.io/component: api-gateway
+spec:
+  minAvailable: {{ .Values.apiGateway.podDisruptionBudget.minAvailable }}
+  selector:
+    matchLabels:
+      {{- include "zt-nms.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: api-gateway
+{{- end }}
+{{- if .Values.apiGateway.ingress.enabled }}
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "zt-nms.fullname" . }}-api-gateway
+  labels:
+    {{- include "zt-nms.labels" . | nindent 4 }}
+    app.kubernetes.io/component: api-gateway
+  {{- with .Values.apiGateway.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  ingressClassName: {{ .Values.apiGateway.ingress.className }}
+  {{- if .Values.apiGateway.ingress.tls }}
+  tls:
+    {{- range .Values.apiGateway.ingress.tls }}
+    - hosts:
+        {{- range .hosts }}
+        - {{ . | quote }}
+        {{- end }}
+      secretName: {{ .secretName }}
+    {{- end }}
+  {{- end }}
+  rules:
+    {{- range .Values.apiGateway.ingress.hosts }}
+    - host: {{ .host | quote }}
+      http:
+        paths:
+          {{- range .paths }}
+          - path: {{ .path }}
+            pathType: {{ .pathType }}
+            backend:
+              service:
+                name: {{ include "zt-nms.fullname" $ }}-api-gateway
+                port:
+                  number: {{ $.Values.apiGateway.service.port }}
+          {{- end }}
+    {{- end }}
+{{- end }}
+{{- end }}

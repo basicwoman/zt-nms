@@ -1,0 +1,497 @@
+{
+  "description": "Тестовые политики доступа для системы ZT-NMS",
+  "version": "1.0.0",
+  "generated_at": "2025-01-15T00:00:00Z",
+  "policies": [
+    {
+      "id": "880e8400-e29b-41d4-a716-446655440001",
+      "name": "network-admin-full-access",
+      "version": 1,
+      "description": "Полный доступ администраторов сети ко всем устройствам и конфигурациям",
+      "type": "access",
+      "status": "active",
+      "effective_from": "2025-01-01T00:00:00Z",
+      "effective_until": null,
+      "definition": {
+        "rules": [
+          {
+            "name": "admin-full-device-access",
+            "description": "Администраторы имеют полный доступ к устройствам",
+            "priority": 100,
+            "subjects": {
+              "groups": ["admins"],
+              "roles": ["admin"]
+            },
+            "resources": {
+              "types": ["device", "config", "backup"]
+            },
+            "actions": ["read", "write", "deploy", "backup", "restore", "delete"],
+            "conditions": [
+              {
+                "type": "context",
+                "field": "mfa_verified",
+                "operator": "eq",
+                "value": true
+              }
+            ],
+            "effect": "allow",
+            "obligations": [
+              {
+                "type": "log",
+                "parameters": {
+                  "level": "info"
+                }
+              }
+            ]
+          }
+        ],
+        "defaults": {
+          "effect": "deny",
+          "obligations": [
+            {
+              "type": "log",
+              "parameters": {
+                "level": "warning"
+              }
+            }
+          ]
+        },
+        "metadata": {
+          "owner": "security-team",
+          "review_date": "2025-07-01"
+        }
+      },
+      "created_at": "2025-01-01T00:00:00Z",
+      "created_by": "550e8400-e29b-41d4-a716-446655440001",
+      "approved_by": "550e8400-e29b-41d4-a716-446655440001",
+      "approval_signature": "MEUCIQDsignature1..."
+    },
+    {
+      "id": "880e8400-e29b-41d4-a716-446655440002",
+      "name": "noc-read-only",
+      "version": 1,
+      "description": "Доступ только на чтение для операторов центра мониторинга",
+      "type": "access",
+      "status": "active",
+      "effective_from": "2025-01-01T00:00:00Z",
+      "effective_until": null,
+      "definition": {
+        "rules": [
+          {
+            "name": "noc-view-devices",
+            "description": "Операторы NOC могут просматривать устройства и конфигурации",
+            "priority": 50,
+            "subjects": {
+              "groups": ["noc-viewers"],
+              "roles": ["viewer"]
+            },
+            "resources": {
+              "types": ["device", "config", "audit"]
+            },
+            "actions": ["read", "list", "view"],
+            "conditions": [],
+            "effect": "allow",
+            "obligations": [
+              {
+                "type": "log",
+                "parameters": {
+                  "level": "debug"
+                }
+              }
+            ]
+          },
+          {
+            "name": "noc-deny-write",
+            "description": "Явный запрет на запись для NOC",
+            "priority": 60,
+            "subjects": {
+              "groups": ["noc-viewers"]
+            },
+            "resources": {
+              "any": true
+            },
+            "actions": ["write", "deploy", "delete", "backup", "restore"],
+            "conditions": [],
+            "effect": "deny",
+            "obligations": [
+              {
+                "type": "alert",
+                "parameters": {
+                  "severity": "medium",
+                  "message": "Попытка записи от NOC оператора"
+                }
+              }
+            ]
+          }
+        ],
+        "defaults": {
+          "effect": "deny"
+        },
+        "metadata": {
+          "owner": "security-team",
+          "review_date": "2025-07-01"
+        }
+      },
+      "created_at": "2025-01-01T00:00:00Z",
+      "created_by": "550e8400-e29b-41d4-a716-446655440001",
+      "approved_by": "550e8400-e29b-41d4-a716-446655440001",
+      "approval_signature": "MEUCIQDsignature2..."
+    },
+    {
+      "id": "880e8400-e29b-41d4-a716-446655440003",
+      "name": "critical-device-protection",
+      "version": 1,
+      "description": "Дополнительная защита для критически важных устройств",
+      "type": "access",
+      "status": "active",
+      "effective_from": "2025-01-01T00:00:00Z",
+      "effective_until": null,
+      "definition": {
+        "rules": [
+          {
+            "name": "critical-requires-approval",
+            "description": "Изменения критических устройств требуют подтверждения",
+            "priority": 200,
+            "subjects": {
+              "groups": ["network-ops", "admins"]
+            },
+            "resources": {
+              "types": ["device", "config"],
+              "attributes": {
+                "criticality": "critical"
+              }
+            },
+            "actions": ["write", "deploy", "delete"],
+            "conditions": [
+              {
+                "type": "context",
+                "field": "mfa_verified",
+                "operator": "eq",
+                "value": true
+              }
+            ],
+            "effect": "step_up",
+            "obligations": [
+              {
+                "type": "require_approval",
+                "parameters": {
+                  "approvers_count": 2,
+                  "approver_groups": ["admins"],
+                  "timeout_hours": 24
+                }
+              },
+              {
+                "type": "require_justification",
+                "parameters": {
+                  "min_length": 50
+                }
+              },
+              {
+                "type": "audit",
+                "parameters": {
+                  "level": "enhanced"
+                }
+              }
+            ]
+          },
+          {
+            "name": "critical-change-ticket",
+            "description": "Изменения требуют тикета изменений",
+            "priority": 190,
+            "subjects": {
+              "any": true
+            },
+            "resources": {
+              "types": ["config"],
+              "attributes": {
+                "criticality": "critical"
+              }
+            },
+            "actions": ["deploy"],
+            "conditions": [
+              {
+                "type": "context",
+                "field": "change_ticket.exists",
+                "operator": "eq",
+                "value": true
+              },
+              {
+                "type": "context",
+                "field": "change_ticket.status",
+                "operator": "eq",
+                "value": "approved"
+              }
+            ],
+            "effect": "allow",
+            "obligations": [
+              {
+                "type": "log",
+                "parameters": {
+                  "include_ticket": true
+                }
+              }
+            ]
+          }
+        ],
+        "defaults": {
+          "effect": "deny"
+        },
+        "metadata": {
+          "owner": "security-team",
+          "compliance": ["SOC2", "ISO27001"],
+          "review_date": "2025-04-01"
+        }
+      },
+      "created_at": "2025-01-01T00:00:00Z",
+      "created_by": "550e8400-e29b-41d4-a716-446655440001",
+      "approved_by": "550e8400-e29b-41d4-a716-446655440001",
+      "approval_signature": "MEUCIQDsignature3..."
+    },
+    {
+      "id": "880e8400-e29b-41d4-a716-446655440004",
+      "name": "emergency-access",
+      "version": 1,
+      "description": "Политика аварийного доступа для экстренных ситуаций",
+      "type": "access",
+      "status": "active",
+      "effective_from": "2025-01-01T00:00:00Z",
+      "effective_until": null,
+      "definition": {
+        "rules": [
+          {
+            "name": "emergency-full-access",
+            "description": "Полный доступ при объявлении аварийного режима",
+            "priority": 1000,
+            "subjects": {
+              "groups": ["admins", "network-ops"],
+              "roles": ["admin", "engineer"]
+            },
+            "resources": {
+              "any": true
+            },
+            "actions": ["read", "write", "deploy", "backup", "restore", "delete"],
+            "conditions": [
+              {
+                "type": "context",
+                "field": "emergency.declared",
+                "operator": "eq",
+                "value": true
+              }
+            ],
+            "effect": "allow",
+            "obligations": [
+              {
+                "type": "audit",
+                "parameters": {
+                  "level": "enhanced",
+                  "include_emergency_id": true
+                }
+              },
+              {
+                "type": "notify",
+                "parameters": {
+                  "channels": ["email", "sms"],
+                  "recipients": ["security-team", "management"]
+                }
+              },
+              {
+                "type": "time_limit",
+                "parameters": {
+                  "duration_hours": 4,
+                  "auto_revoke": true
+                }
+              },
+              {
+                "type": "record_session",
+                "parameters": {
+                  "enabled": true
+                }
+              }
+            ]
+          }
+        ],
+        "defaults": {
+          "effect": "deny"
+        },
+        "metadata": {
+          "owner": "security-team",
+          "emergency_contact": "+7-999-123-4567",
+          "review_date": "2025-04-01"
+        }
+      },
+      "created_at": "2025-01-01T00:00:00Z",
+      "created_by": "550e8400-e29b-41d4-a716-446655440001",
+      "approved_by": "550e8400-e29b-41d4-a716-446655440001",
+      "approval_signature": "MEUCIQDsignature4..."
+    },
+    {
+      "id": "880e8400-e29b-41d4-a716-446655440005",
+      "name": "time-based-access",
+      "version": 1,
+      "description": "Ограничение доступа по времени (рабочие часы)",
+      "type": "access",
+      "status": "active",
+      "effective_from": "2025-01-01T00:00:00Z",
+      "effective_until": null,
+      "definition": {
+        "rules": [
+          {
+            "name": "business-hours-access",
+            "description": "Изменения только в рабочие часы",
+            "priority": 80,
+            "subjects": {
+              "groups": ["network-ops"]
+            },
+            "resources": {
+              "types": ["config"]
+            },
+            "actions": ["deploy"],
+            "conditions": [
+              {
+                "type": "time",
+                "field": "hour",
+                "operator": "gte",
+                "value": 9
+              },
+              {
+                "type": "time",
+                "field": "hour",
+                "operator": "lte",
+                "value": 18
+              },
+              {
+                "type": "time",
+                "field": "day_of_week",
+                "operator": "in",
+                "value": [1, 2, 3, 4, 5]
+              }
+            ],
+            "effect": "allow",
+            "obligations": []
+          },
+          {
+            "name": "after-hours-requires-approval",
+            "description": "Вне рабочих часов требуется подтверждение",
+            "priority": 70,
+            "subjects": {
+              "groups": ["network-ops"]
+            },
+            "resources": {
+              "types": ["config"]
+            },
+            "actions": ["deploy"],
+            "conditions": [],
+            "effect": "step_up",
+            "obligations": [
+              {
+                "type": "require_approval",
+                "parameters": {
+                  "approvers_count": 1,
+                  "approver_groups": ["admins"]
+                }
+              },
+              {
+                "type": "require_justification",
+                "parameters": {}
+              }
+            ]
+          }
+        ],
+        "defaults": {
+          "effect": "deny"
+        },
+        "metadata": {
+          "owner": "operations-team",
+          "timezone": "Europe/Moscow"
+        }
+      },
+      "created_at": "2025-01-01T00:00:00Z",
+      "created_by": "550e8400-e29b-41d4-a716-446655440001",
+      "approved_by": "550e8400-e29b-41d4-a716-446655440001",
+      "approval_signature": "MEUCIQDsignature5..."
+    },
+    {
+      "id": "880e8400-e29b-41d4-a716-446655440006",
+      "name": "service-account-restrictions",
+      "version": 1,
+      "description": "Ограничения для сервисных учётных записей",
+      "type": "access",
+      "status": "active",
+      "effective_from": "2025-01-01T00:00:00Z",
+      "effective_until": null,
+      "definition": {
+        "rules": [
+          {
+            "name": "service-backup-only",
+            "description": "Сервисные аккаунты только для резервного копирования",
+            "priority": 90,
+            "subjects": {
+              "identities": [
+                {
+                  "type": "service"
+                }
+              ]
+            },
+            "resources": {
+              "types": ["config", "backup"]
+            },
+            "actions": ["read", "backup"],
+            "conditions": [
+              {
+                "type": "subject",
+                "field": "source_ips",
+                "operator": "contains",
+                "value": "192.168.1.0/24"
+              }
+            ],
+            "effect": "allow",
+            "obligations": [
+              {
+                "type": "log",
+                "parameters": {
+                  "level": "info"
+                }
+              }
+            ]
+          },
+          {
+            "name": "service-deny-deploy",
+            "description": "Запрет развёртывания для сервисных аккаунтов",
+            "priority": 95,
+            "subjects": {
+              "identities": [
+                {
+                  "type": "service"
+                }
+              ]
+            },
+            "resources": {
+              "any": true
+            },
+            "actions": ["deploy", "delete", "write"],
+            "conditions": [],
+            "effect": "deny",
+            "obligations": [
+              {
+                "type": "alert",
+                "parameters": {
+                  "severity": "high"
+                }
+              }
+            ]
+          }
+        ],
+        "defaults": {
+          "effect": "deny"
+        },
+        "metadata": {
+          "owner": "security-team"
+        }
+      },
+      "created_at": "2025-01-01T00:00:00Z",
+      "created_by": "550e8400-e29b-41d4-a716-446655440001",
+      "approved_by": "550e8400-e29b-41d4-a716-446655440001",
+      "approval_signature": "MEUCIQDsignature6..."
+    }
+  ]
+}

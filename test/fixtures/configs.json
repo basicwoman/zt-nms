@@ -1,0 +1,445 @@
+{
+  "description": "Тестовые блоки конфигураций (ConfigBlock) для системы ZT-NMS",
+  "version": "1.0.0",
+  "generated_at": "2025-01-15T00:00:00Z",
+  "config_blocks": [
+    {
+      "id": "990e8400-e29b-41d4-a716-446655440001",
+      "device_id": "660e8400-e29b-41d4-a716-446655440001",
+      "sequence": 1,
+      "prev_hash": null,
+      "merkle_root": "sha256:merkle_root_001_abc123def456789012345678901234",
+      "block_hash": "sha256:block_hash_001_def456789012345678901234567890ab",
+      "timestamp": "2025-01-01T00:00:00Z",
+      "intent": {
+        "description": "Начальная базовая конфигурация маршрутизатора core-rtr-01",
+        "policy_refs": ["baseline-config-v1"],
+        "change_ticket": "CHG-2025-0001",
+        "tags": ["baseline", "initial"]
+      },
+      "configuration": {
+        "format": "normalized",
+        "tree": {
+          "system": {
+            "hostname": "core-rtr-01",
+            "domain": "zt-nms.local",
+            "timezone": "Europe/Moscow",
+            "ntp_servers": ["192.168.1.10", "192.168.1.11"]
+          },
+          "interfaces": {
+            "GigabitEthernet0/0": {
+              "enabled": true,
+              "ip_address": "192.168.1.1/24",
+              "description": "Management Interface",
+              "mtu": 1500
+            },
+            "GigabitEthernet0/1": {
+              "enabled": true,
+              "ip_address": "10.0.0.1/30",
+              "description": "Uplink to dist-sw-01"
+            },
+            "GigabitEthernet0/2": {
+              "enabled": true,
+              "ip_address": "10.0.0.5/30",
+              "description": "Uplink to dist-sw-02"
+            },
+            "Loopback0": {
+              "enabled": true,
+              "ip_address": "10.255.255.1/32",
+              "description": "Router ID"
+            }
+          },
+          "routing": {
+            "ospf": {
+              "process_id": 1,
+              "router_id": "10.255.255.1",
+              "networks": [
+                {"network": "10.0.0.0/8", "area": "0"}
+              ]
+            }
+          },
+          "services": {
+            "ssh": {
+              "enabled": true,
+              "version": 2,
+              "timeout": 60
+            },
+            "snmp": {
+              "enabled": true,
+              "version": "v3",
+              "location": "EVE-NG Lab"
+            }
+          },
+          "security": {
+            "acls": {
+              "MGMT-ACCESS": {
+                "type": "extended",
+                "entries": [
+                  {"sequence": 10, "action": "permit", "protocol": "tcp", "source": "192.168.1.0/24", "destination": "any", "port": "22"},
+                  {"sequence": 20, "action": "permit", "protocol": "udp", "source": "192.168.1.0/24", "destination": "any", "port": "161"},
+                  {"sequence": 100, "action": "deny", "protocol": "ip", "source": "any", "destination": "any", "log": true}
+                ]
+              }
+            }
+          }
+        }
+      },
+      "validation": {
+        "syntax_check": "passed",
+        "policy_check": "passed",
+        "security_check": "passed",
+        "errors": [],
+        "warnings": []
+      },
+      "author_id": "550e8400-e29b-41d4-a716-446655440001",
+      "author_signature": "MEUCIQDauthor_sig_001...",
+      "approvals": [
+        {
+          "identity": "550e8400-e29b-41d4-a716-446655440001",
+          "role": "admin",
+          "signature": "MEUCIQDapproval_sig_001...",
+          "timestamp": "2025-01-01T01:00:00Z"
+        }
+      ],
+      "system_signature": "MEUCIQDsystem_sig_001...",
+      "deployment_status": "applied",
+      "device_signature": "MEUCIQDdevice_sig_001...",
+      "applied_at": "2025-01-01T02:00:00Z",
+      "device_config_hash": "sha256:device_hash_001_abc123def456789012345678"
+    },
+    {
+      "id": "990e8400-e29b-41d4-a716-446655440002",
+      "device_id": "660e8400-e29b-41d4-a716-446655440001",
+      "sequence": 2,
+      "prev_hash": "sha256:block_hash_001_def456789012345678901234567890ab",
+      "merkle_root": "sha256:merkle_root_002_def456789012345678901234567890",
+      "block_hash": "sha256:block_hash_002_789012345678901234567890abcdef",
+      "timestamp": "2025-01-10T00:00:00Z",
+      "intent": {
+        "description": "Добавление зоны OSPF area 1 для сегмента доступа",
+        "policy_refs": ["routing-update-v1"],
+        "change_ticket": "CHG-2025-0015",
+        "tags": ["ospf", "routing", "area1"]
+      },
+      "configuration": {
+        "format": "normalized",
+        "tree": {
+          "routing": {
+            "ospf": {
+              "process_id": 1,
+              "router_id": "10.255.255.1",
+              "networks": [
+                {"network": "10.0.0.0/8", "area": "0"},
+                {"network": "172.16.0.0/16", "area": "1"}
+              ],
+              "areas": {
+                "1": {
+                  "type": "normal",
+                  "authentication": "md5"
+                }
+              }
+            }
+          }
+        }
+      },
+      "diff": {
+        "changes": [
+          {
+            "path": "routing.ospf.networks",
+            "type": "add",
+            "new_value": {"network": "172.16.0.0/16", "area": "1"}
+          },
+          {
+            "path": "routing.ospf.areas.1",
+            "type": "add",
+            "new_value": {"type": "normal", "authentication": "md5"}
+          }
+        ]
+      },
+      "validation": {
+        "syntax_check": "passed",
+        "policy_check": "passed",
+        "security_check": "passed",
+        "errors": [],
+        "warnings": []
+      },
+      "author_id": "550e8400-e29b-41d4-a716-446655440003",
+      "author_signature": "MEUCIQDauthor_sig_002...",
+      "approvals": [
+        {
+          "identity": "550e8400-e29b-41d4-a716-446655440001",
+          "role": "admin",
+          "signature": "MEUCIQDapproval_sig_002...",
+          "timestamp": "2025-01-10T01:00:00Z"
+        }
+      ],
+      "system_signature": "MEUCIQDsystem_sig_002...",
+      "deployment_status": "applied",
+      "device_signature": "MEUCIQDdevice_sig_002...",
+      "applied_at": "2025-01-10T02:00:00Z",
+      "device_config_hash": "sha256:device_hash_002_def456789012345678901234"
+    },
+    {
+      "id": "990e8400-e29b-41d4-a716-446655440003",
+      "device_id": "660e8400-e29b-41d4-a716-446655440002",
+      "sequence": 1,
+      "prev_hash": null,
+      "merkle_root": "sha256:merkle_root_003_invalid_syntax_error_test",
+      "block_hash": "sha256:block_hash_003_invalid_syntax_error_test_ab",
+      "timestamp": "2025-01-12T00:00:00Z",
+      "intent": {
+        "description": "Тестовая конфигурация с синтаксической ошибкой",
+        "policy_refs": [],
+        "change_ticket": "CHG-2025-0020",
+        "tags": ["test", "invalid", "syntax-error"]
+      },
+      "configuration": {
+        "format": "normalized",
+        "tree": {
+          "interfaces": {
+            "GigabitEthernet0/1": {
+              "enabled": true,
+              "ip_address": "invalid_ip_address",
+              "description": "Invalid config for testing"
+            }
+          },
+          "routing": {
+            "ospf": {
+              "process_id": -1,
+              "router_id": "not.valid.router.id"
+            }
+          }
+        }
+      },
+      "validation": {
+        "syntax_check": "failed",
+        "policy_check": "skipped",
+        "security_check": "skipped",
+        "errors": [
+          {
+            "code": "SYNTAX_001",
+            "path": "interfaces.GigabitEthernet0/1.ip_address",
+            "message": "Invalid IP address format: 'invalid_ip_address'"
+          },
+          {
+            "code": "SYNTAX_002",
+            "path": "routing.ospf.process_id",
+            "message": "OSPF process ID must be between 1 and 65535"
+          },
+          {
+            "code": "SYNTAX_003",
+            "path": "routing.ospf.router_id",
+            "message": "Invalid router ID format"
+          }
+        ],
+        "warnings": []
+      },
+      "author_id": "550e8400-e29b-41d4-a716-446655440003",
+      "author_signature": "MEUCIQDauthor_sig_003...",
+      "approvals": [],
+      "system_signature": null,
+      "deployment_status": "failed",
+      "device_signature": null,
+      "applied_at": null,
+      "device_config_hash": null
+    },
+    {
+      "id": "990e8400-e29b-41d4-a716-446655440004",
+      "device_id": "660e8400-e29b-41d4-a716-446655440005",
+      "sequence": 1,
+      "prev_hash": null,
+      "merkle_root": "sha256:merkle_root_004_firewall_rules_config_test",
+      "block_hash": "sha256:block_hash_004_firewall_rules_config_test_ab",
+      "timestamp": "2025-01-05T00:00:00Z",
+      "intent": {
+        "description": "Базовая конфигурация правил межсетевого экрана pfSense",
+        "policy_refs": ["firewall-baseline-v1"],
+        "change_ticket": "CHG-2025-0010",
+        "tags": ["firewall", "baseline", "pfsense"]
+      },
+      "configuration": {
+        "format": "normalized",
+        "tree": {
+          "system": {
+            "hostname": "fw-edge-01",
+            "domain": "zt-nms.local"
+          },
+          "interfaces": {
+            "wan": {
+              "enabled": true,
+              "type": "dhcp",
+              "description": "WAN Interface"
+            },
+            "lan": {
+              "enabled": true,
+              "ip_address": "192.168.1.254/24",
+              "description": "LAN Interface"
+            },
+            "dmz": {
+              "enabled": true,
+              "ip_address": "10.0.100.254/24",
+              "description": "DMZ Interface"
+            }
+          },
+          "security": {
+            "firewall": {
+              "zones": {
+                "wan": {"interfaces": ["wan"]},
+                "lan": {"interfaces": ["lan"]},
+                "dmz": {"interfaces": ["dmz"]}
+              },
+              "rules": [
+                {
+                  "name": "allow-lan-to-any",
+                  "action": "allow",
+                  "from_zone": "lan",
+                  "to_zone": "wan",
+                  "source": "192.168.1.0/24",
+                  "destination": "any",
+                  "log": false,
+                  "enabled": true
+                },
+                {
+                  "name": "allow-https-to-dmz",
+                  "action": "allow",
+                  "from_zone": "wan",
+                  "to_zone": "dmz",
+                  "source": "any",
+                  "destination": "10.0.100.0/24",
+                  "services": ["https"],
+                  "log": true,
+                  "enabled": true
+                },
+                {
+                  "name": "block-wan-inbound",
+                  "action": "deny",
+                  "from_zone": "wan",
+                  "to_zone": "lan",
+                  "source": "any",
+                  "destination": "any",
+                  "log": true,
+                  "enabled": true
+                }
+              ],
+              "nat": [
+                {
+                  "type": "source",
+                  "source": "192.168.1.0/24",
+                  "translated": "wan_ip",
+                  "interface": "wan"
+                }
+              ]
+            }
+          },
+          "services": {
+            "ssh": {"enabled": true, "port": 22},
+            "snmp": {"enabled": false}
+          }
+        }
+      },
+      "validation": {
+        "syntax_check": "passed",
+        "policy_check": "passed",
+        "security_check": "passed",
+        "errors": [],
+        "warnings": [
+          {
+            "code": "SEC_WARN_001",
+            "path": "security.firewall.rules[0]",
+            "message": "Rule allows outbound traffic to any destination - consider restricting"
+          }
+        ]
+      },
+      "author_id": "550e8400-e29b-41d4-a716-446655440001",
+      "author_signature": "MEUCIQDauthor_sig_004...",
+      "approvals": [
+        {
+          "identity": "550e8400-e29b-41d4-a716-446655440001",
+          "role": "admin",
+          "signature": "MEUCIQDapproval_sig_004...",
+          "timestamp": "2025-01-05T01:00:00Z"
+        }
+      ],
+      "system_signature": "MEUCIQDsystem_sig_004...",
+      "deployment_status": "applied",
+      "device_signature": "MEUCIQDdevice_sig_004...",
+      "applied_at": "2025-01-05T02:00:00Z",
+      "device_config_hash": "sha256:device_hash_004_firewall_applied_config"
+    },
+    {
+      "id": "990e8400-e29b-41d4-a716-446655440005",
+      "device_id": "660e8400-e29b-41d4-a716-446655440001",
+      "sequence": 3,
+      "prev_hash": "sha256:block_hash_002_789012345678901234567890abcdef",
+      "merkle_root": "sha256:merkle_root_005_rollback_test_configuration",
+      "block_hash": "sha256:block_hash_005_rollback_test_configuration_ab",
+      "timestamp": "2025-01-14T00:00:00Z",
+      "intent": {
+        "description": "Конфигурация для тестирования автоматического отката",
+        "policy_refs": [],
+        "change_ticket": "CHG-2025-0025",
+        "tags": ["test", "rollback"]
+      },
+      "configuration": {
+        "format": "normalized",
+        "tree": {
+          "routing": {
+            "ospf": {
+              "process_id": 1,
+              "router_id": "10.255.255.1",
+              "networks": [
+                {"network": "10.0.0.0/8", "area": "0"},
+                {"network": "172.16.0.0/16", "area": "1"},
+                {"network": "192.168.100.0/24", "area": "2"}
+              ]
+            }
+          }
+        }
+      },
+      "diff": {
+        "changes": [
+          {
+            "path": "routing.ospf.networks",
+            "type": "add",
+            "new_value": {"network": "192.168.100.0/24", "area": "2"}
+          }
+        ]
+      },
+      "validation": {
+        "syntax_check": "passed",
+        "policy_check": "passed",
+        "security_check": "passed",
+        "simulation_result": {
+          "reachability": "failed",
+          "no_loops": "passed",
+          "consistency": "failed"
+        },
+        "errors": [],
+        "warnings": [
+          {
+            "code": "SIM_WARN_001",
+            "path": "routing.ospf.networks[2]",
+            "message": "Network 192.168.100.0/24 may cause routing inconsistency"
+          }
+        ]
+      },
+      "author_id": "550e8400-e29b-41d4-a716-446655440003",
+      "author_signature": "MEUCIQDauthor_sig_005...",
+      "approvals": [
+        {
+          "identity": "550e8400-e29b-41d4-a716-446655440001",
+          "role": "admin",
+          "signature": "MEUCIQDapproval_sig_005...",
+          "timestamp": "2025-01-14T01:00:00Z"
+        }
+      ],
+      "system_signature": "MEUCIQDsystem_sig_005...",
+      "deployment_status": "rolled_back",
+      "device_signature": null,
+      "applied_at": null,
+      "device_config_hash": null,
+      "rollback_reason": "Verification failed - configuration hash mismatch after deployment",
+      "rollback_timestamp": "2025-01-14T02:30:00Z"
+    }
+  ]
+}

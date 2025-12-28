@@ -1,0 +1,141 @@
+groups:
+  - name: zt-nms-system
+    rules:
+      - alert: ServiceDown
+        expr: up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Service {{ $labels.job }} is down"
+          description: "Service {{ $labels.job }} has been down for more than 1 minute"
+
+      - alert: HighErrorRate
+        expr: sum(rate(http_requests_total{status=~"5.."}[5m])) by (job) / sum(rate(http_requests_total[5m])) by (job) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High error rate on {{ $labels.job }}"
+          description: "Service {{ $labels.job }} has error rate above 5%"
+
+      - alert: HighLatency
+        expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (job, le)) > 1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High latency on {{ $labels.job }}"
+          description: "Service {{ $labels.job }} p95 latency is above 1 second"
+
+  - name: zt-nms-security
+    rules:
+      - alert: DeviceQuarantined
+        expr: increase(zt_nms_devices_quarantined[5m]) > 0
+        labels:
+          severity: warning
+        annotations:
+          summary: "Device quarantined"
+          description: "A device has been quarantined due to failed attestation"
+
+      - alert: HighAuthFailures
+        expr: sum(rate(zt_nms_auth_failures_total[5m])) > 10
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High authentication failure rate"
+          description: "More than 10 authentication failures per second"
+
+      - alert: AttestationFailures
+        expr: sum(rate(zt_nms_attestation_total{status="failed"}[10m])) > 5
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "High attestation failure rate"
+          description: "Multiple devices are failing attestation"
+
+      - alert: PolicyDenialSpike
+        expr: sum(rate(zt_nms_policy_evaluations_total{result="denied"}[5m])) > sum(rate(zt_nms_policy_evaluations_total{result="denied"}[1h] offset 1h)) * 2
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Policy denial spike detected"
+          description: "Policy denials have doubled compared to last hour"
+
+  - name: zt-nms-config
+    rules:
+      - alert: ConfigDeploymentFailed
+        expr: increase(zt_nms_config_deployments_total{status="failed"}[5m]) > 0
+        labels:
+          severity: warning
+        annotations:
+          summary: "Configuration deployment failed"
+          description: "A configuration deployment has failed"
+
+      - alert: ConfigChainIntegrityError
+        expr: zt_nms_config_chain_integrity_errors > 0
+        labels:
+          severity: critical
+        annotations:
+          summary: "Configuration chain integrity error"
+          description: "Configuration chain integrity check failed for device {{ $labels.device }}"
+
+  - name: zt-nms-audit
+    rules:
+      - alert: AuditChainIntegrityError
+        expr: zt_nms_audit_chain_integrity_errors > 0
+        labels:
+          severity: critical
+        annotations:
+          summary: "Audit chain integrity error"
+          description: "Audit log chain integrity check failed"
+
+      - alert: SecurityEventSpike
+        expr: sum(rate(zt_nms_audit_events_total{event_type="security"}[5m])) > 10
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Security event spike"
+          description: "Unusually high number of security events"
+
+  - name: zt-nms-resources
+    rules:
+      - alert: HighMemoryUsage
+        expr: go_memstats_alloc_bytes / go_memstats_sys_bytes > 0.9
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory usage on {{ $labels.job }}"
+          description: "Service {{ $labels.job }} is using more than 90% of allocated memory"
+
+      - alert: HighGoroutineCount
+        expr: go_goroutines > 1000
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High goroutine count on {{ $labels.job }}"
+          description: "Service {{ $labels.job }} has more than 1000 goroutines"
+
+      - alert: PostgresConnectionPoolExhausted
+        expr: pg_stat_activity_count / pg_settings_max_connections > 0.9
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "PostgreSQL connection pool nearly exhausted"
+          description: "PostgreSQL connection pool is at 90% capacity"
+
+      - alert: RedisHighMemory
+        expr: redis_memory_used_bytes / redis_memory_max_bytes > 0.9
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Redis high memory usage"
+          description: "Redis is using more than 90% of max memory"
